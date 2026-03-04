@@ -1,0 +1,558 @@
+---
+title: Notifications API
+description: Send Discord notifications to users via the REST API
+---
+
+## Overview
+
+The Notifications API allows you to send Discord direct messages to users. All notification endpoints require authentication and are prefixed with `/notifications`.
+
+<Note>
+  All notification endpoints validate Discord IDs and require the user to have DMs enabled.
+</Note>
+
+## Send Message Notification
+
+Send a message notification to a user, typically used when someone receives a new message on the MinionAH platform.
+
+<CodeGroup>
+
+```bash Endpoint
+POST /notifications/send
+```
+
+```bash cURL
+curl -X POST http://localhost:3000/notifications/send \
+  -H "Content-Type: application/json" \
+  -H "Authorization: your-api-key-here" \
+  -d '{
+    "receiverDiscordID": "123456789012345678",
+    "senderUsername": "john_doe",
+    "senderID": "a1b2c3d4e5f67890a1b2c3d4e5f67890"
+  }'
+```
+
+</CodeGroup>
+
+### Request Body
+
+<ParamField body="receiverDiscordID" type="string" required>
+  Discord ID of the user receiving the notification. Must be a valid 17-19 digit Discord ID.
+  
+  **Validation:** Matches regex `^\d{17,19}$`
+</ParamField>
+
+<ParamField body="senderUsername" type="string" required>
+  Username of the person sending the message.
+</ParamField>
+
+<ParamField body="senderID" type="string" required>
+  Unique identifier for the sender. Must be exactly 32 hexadecimal characters (UUID format).
+  
+  **Validation:** 
+  - Exactly 32 characters
+  - Contains only hexadecimal characters (0-9, a-f, A-F)
+</ParamField>
+
+### Response
+
+<ResponseField name="message" type="string">
+  Confirmation message
+</ResponseField>
+
+**Success Response (200):**
+
+```json
+{
+  "message": "Notification sent successfully"
+}
+```
+
+**Error Response (500):**
+
+```json
+{
+  "message": "Cannot send messages to this user",
+  "code": 50007
+}
+```
+
+### Discord Message Format
+
+The notification appears as a Discord embed with:
+
+- **Title:** "You have a new message"
+- **Color:** #262626 (dark gray)
+- **Thumbnail:** Sender's avatar from Cloudinary
+- **Description:** Mentions the receiver and displays sender's username
+- **Buttons:**
+  - "View Chat" - Links to `https://minionah.com/user/{senderUsername}/chat`
+  - "Manage Notifications" - Links to notification settings
+
+### Implementation Details
+
+Source: `src/rest/routes/notifications/send.ts:13`
+
+The endpoint:
+1. Validates the request body using the Zod schema (`src/rest/zod/notifications/notif_send_schema.zod.ts:2`)
+2. Creates a Discord embed with sender information
+3. Fetches or creates a DM channel with the receiver
+4. Sends the embed with action buttons
+5. Returns success or Discord API error
+
+---
+
+## Test Notification
+
+Send a test notification to verify that the bot can successfully send DMs to a user.
+
+<CodeGroup>
+
+```bash Endpoint
+POST /notifications/test
+```
+
+```bash cURL
+curl -X POST http://localhost:3000/notifications/test \
+  -H "Content-Type: application/json" \
+  -H "Authorization: your-api-key-here" \
+  -d '{
+    "receiverDiscordID": "123456789012345678",
+    "senderID": "a1b2c3d4e5f67890a1b2c3d4e5f67890"
+  }'
+```
+
+</CodeGroup>
+
+### Request Body
+
+<ParamField body="receiverDiscordID" type="string" required>
+  Discord ID of the user receiving the test notification.
+  
+  **Validation:** Must be a valid 17-19 digit Discord ID
+</ParamField>
+
+<ParamField body="senderID" type="string" required>
+  A 32-character hexadecimal UUID used for the thumbnail image.
+  
+  **Validation:** Exactly 32 hexadecimal characters
+</ParamField>
+
+### Response
+
+**Success Response (200):**
+
+```json
+{
+  "message": "Notification sent successfully"
+}
+```
+
+**Error Response (500):**
+
+```json
+{
+  "message": "Cannot send messages to this user",
+  "code": 50007
+}
+```
+
+### Discord Message Format
+
+The test notification includes:
+
+- **Title:** "Example Notification"
+- **Color:** #262626
+- **Thumbnail:** Avatar from Cloudinary using the sender ID
+- **Description:** "If you can see this message, the bot can send you notifications successfully."
+
+### Use Cases
+
+<CardGroup cols={2}>
+  <Card title="User Onboarding" icon="user-plus">
+    Test notification delivery when users first connect their Discord
+  </Card>
+  <Card title="Troubleshooting" icon="wrench">
+    Verify notification setup without triggering actual events
+  </Card>
+</CardGroup>
+
+---
+
+## Expiring Auctions Notification
+
+Notify users when their minion auctions are about to expire. This endpoint fetches auction details from the database and formats them into a rich Discord embed.
+
+<CodeGroup>
+
+```bash Endpoint
+POST /notifications/expiring_auctions
+```
+
+```bash cURL
+curl -X POST http://localhost:3000/notifications/expiring_auctions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: your-api-key-here" \
+  -d '{
+    "receiverDiscordID": "123456789012345678",
+    "auctionIDs": [
+      "auction-id-1",
+      "auction-id-2",
+      "auction-id-3"
+    ]
+  }'
+```
+
+</CodeGroup>
+
+### Request Body
+
+<ParamField body="receiverDiscordID" type="string" required>
+  Discord ID of the user who owns the expiring auctions.
+  
+  **Validation:** Must be a valid 17-19 digit Discord ID
+</ParamField>
+
+<ParamField body="auctionIDs" type="array" required>
+  Array of auction IDs to include in the notification. Must contain at least one ID.
+  
+  **Type:** `string[]`
+</ParamField>
+
+### Response
+
+**Success Response (200):**
+
+```json
+{
+  "message": "Notification sent successfully"
+}
+```
+
+**Error Response (400):**
+
+```json
+{
+  "error": "No auction IDs provided"
+}
+```
+
+**Error Response (500):**
+
+```json
+{
+  "error": "Error message details"
+}
+```
+
+### Discord Message Format
+
+The notification creates a rich embed with:
+
+- **Title:** "Auctions Expiring Soon!"
+- **Color:** #262626
+- **Thumbnail:** MinionAH favicon
+- **Description:**
+  - Mentions the user
+  - States how many auctions are expiring
+  - Lists each auction with:
+    - Custom minion emoji
+    - Minion quantity
+    - Minion type (e.g., "Clay Minion XI")
+- **Footer:** "by MinionAH" with icon
+- **Button:** "Manage Notifications" link
+
+### Example Output
+
+```
+Auctions Expiring Soon!
+
+Hello @username,
+
+3 of your auctions are expiring soon!
+
+• 🏺 5x Clay Minion XI
+• 🌾 2x Wheat Minion IX
+• ⛏️ 1x Cobblestone Minion XII
+```
+
+### Implementation Details
+
+Source: `src/rest/routes/notifications/expiring_auctions.ts:17`
+
+The endpoint:
+1. Validates the request body (`src/rest/zod/notifications/notif_expiring_auctions_schema.zod.ts:3`)
+2. Checks that at least one auction ID is provided
+3. Fetches auction details from Prisma database
+4. Resolves custom minion emojis from Discord application emojis
+5. Parses minion types and formats the list
+6. Sends the formatted embed to the user
+
+<Note>
+  This endpoint queries the database, so response time depends on the number of auctions.
+</Note>
+
+---
+
+## Common Validation Rules
+
+All notification endpoints share these validation rules:
+
+### Discord ID Format
+
+```typescript
+regex: /^\d{17,19}$/
+```
+
+Discord IDs must be:
+- Numeric only (no letters or special characters)
+- Between 17 and 19 digits long
+- Valid Discord user IDs
+
+**Valid Examples:**
+- `"123456789012345678"` (18 digits)
+- `"1234567890123456789"` (19 digits)
+
+**Invalid Examples:**
+- `"12345"` (too short)
+- `"abc123456789012345"` (contains letters)
+- `123456789012345678` (number instead of string)
+
+### Sender ID Format
+
+```typescript
+length: 32
+regex: /^[a-fA-F0-9]+$/
+```
+
+Sender IDs must be:
+- Exactly 32 characters
+- Hexadecimal only (0-9, a-f, A-F)
+- Typically a UUID without hyphens
+
+**Valid Examples:**
+- `"a1b2c3d4e5f67890a1b2c3d4e5f67890"`
+- `"ABCDEF1234567890ABCDEF1234567890"`
+
+**Invalid Examples:**
+- `"a1b2c3d4-e5f6-7890-a1b2-c3d4e5f67890"` (contains hyphens)
+- `"short"` (too short)
+- `"not-hexadecimal-characters!!"` (invalid characters)
+
+---
+
+## Error Handling
+
+### Discord API Errors
+
+When Discord cannot send a message, the API returns a 500 error with Discord's error details:
+
+**Common Discord Errors:**
+
+| Error Code | Description | Solution |
+|------------|-------------|----------|
+| `50007` | Cannot send messages to this user | User has DMs disabled or has blocked the bot |
+| `10013` | Unknown User | Invalid Discord user ID |
+| `50013` | Missing Permissions | Bot lacks permission to DM the user |
+
+**Example Error Response:**
+
+```json
+{
+  "message": "Cannot send messages to this user",
+  "code": 50007
+}
+```
+
+### Validation Errors
+
+Validation failures return a 400 status with "Bad Request":
+
+```bash
+HTTP/1.1 400 Bad Request
+Bad Request
+```
+
+The server logs the specific validation error to the console for debugging.
+
+### Best Practices
+
+<Steps>
+  <Step title="Validate User Preferences">
+    Check if the user has notification preferences enabled before calling the API
+  </Step>
+  <Step title="Handle DM Failures Gracefully">
+    Not all users have DMs enabled. Store notification preferences and don't retry failed DMs immediately
+  </Step>
+  <Step title="Implement Retry Logic">
+    Use exponential backoff for temporary failures (rate limits, Discord downtime)
+  </Step>
+  <Step title="Monitor Error Rates">
+    Track 500 errors to identify patterns (e.g., many users with DMs disabled)
+  </Step>
+</Steps>
+
+---
+
+## Integration Example
+
+Here's a complete example of integrating the notifications API into a web application:
+
+<CodeGroup>
+
+```typescript TypeScript
+interface NotificationService {
+  sendMessage(receiverDiscordID: string, senderUsername: string, senderID: string): Promise<void>;
+  sendExpiringAuctions(receiverDiscordID: string, auctionIDs: string[]): Promise<void>;
+  testNotification(receiverDiscordID: string, senderID: string): Promise<void>;
+}
+
+class MinionAHNotifications implements NotificationService {
+  private apiUrl: string;
+  private apiKey: string;
+
+  constructor(apiUrl: string, apiKey: string) {
+    this.apiUrl = apiUrl;
+    this.apiKey = apiKey;
+  }
+
+  private async request(endpoint: string, body: object) {
+    const response = await fetch(`${this.apiUrl}${endpoint}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': this.apiKey
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Notification failed: ${error}`);
+    }
+
+    return response.json();
+  }
+
+  async sendMessage(receiverDiscordID: string, senderUsername: string, senderID: string) {
+    return this.request('/notifications/send', {
+      receiverDiscordID,
+      senderUsername,
+      senderID
+    });
+  }
+
+  async sendExpiringAuctions(receiverDiscordID: string, auctionIDs: string[]) {
+    return this.request('/notifications/expiring_auctions', {
+      receiverDiscordID,
+      auctionIDs
+    });
+  }
+
+  async testNotification(receiverDiscordID: string, senderID: string) {
+    return this.request('/notifications/test', {
+      receiverDiscordID,
+      senderID
+    });
+  }
+}
+
+// Usage
+const notifications = new MinionAHNotifications(
+  'http://localhost:3000',
+  process.env.API_KEY!
+);
+
+// Send a message notification
+await notifications.sendMessage(
+  '123456789012345678',
+  'john_doe',
+  'a1b2c3d4e5f67890a1b2c3d4e5f67890'
+);
+
+// Notify about expiring auctions
+await notifications.sendExpiringAuctions(
+  '123456789012345678',
+  ['auction1', 'auction2', 'auction3']
+);
+```
+
+```python Python
+import requests
+from typing import List
+import os
+
+class MinionAHNotifications:
+    def __init__(self, api_url: str, api_key: str):
+        self.api_url = api_url
+        self.api_key = api_key
+        self.headers = {
+            'Content-Type': 'application/json',
+            'Authorization': api_key
+        }
+    
+    def _request(self, endpoint: str, body: dict) -> dict:
+        response = requests.post(
+            f"{self.api_url}{endpoint}",
+            json=body,
+            headers=self.headers
+        )
+        response.raise_for_status()
+        return response.json()
+    
+    def send_message(self, receiver_discord_id: str, 
+                    sender_username: str, sender_id: str) -> dict:
+        return self._request('/notifications/send', {
+            'receiverDiscordID': receiver_discord_id,
+            'senderUsername': sender_username,
+            'senderID': sender_id
+        })
+    
+    def send_expiring_auctions(self, receiver_discord_id: str, 
+                              auction_ids: List[str]) -> dict:
+        return self._request('/notifications/expiring_auctions', {
+            'receiverDiscordID': receiver_discord_id,
+            'auctionIDs': auction_ids
+        })
+    
+    def test_notification(self, receiver_discord_id: str, 
+                         sender_id: str) -> dict:
+        return self._request('/notifications/test', {
+            'receiverDiscordID': receiver_discord_id,
+            'senderID': sender_id
+        })
+
+# Usage
+notifications = MinionAHNotifications(
+    'http://localhost:3000',
+    os.getenv('API_KEY')
+)
+
+# Send a message notification
+notifications.send_message(
+    '123456789012345678',
+    'john_doe',
+    'a1b2c3d4e5f67890a1b2c3d4e5f67890'
+)
+```
+
+</CodeGroup>
+
+---
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="API Overview" icon="book" href="/api/overview">
+    Learn about authentication and base setup
+  </Card>
+  <Card title="Discord Client" icon="discord" href="/architecture/discord-client">
+    Understand how the Discord bot works
+  </Card>
+  <Card title="Database Schema" icon="database" href="/architecture/database">
+    View auction and user data structures
+  </Card>
+  <Card title="Environment Setup" icon="gear" href="/getting-started/configuration">
+    Configure API keys and environment variables
+  </Card>
+</CardGroup>

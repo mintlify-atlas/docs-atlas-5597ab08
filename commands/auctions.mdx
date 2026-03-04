@@ -1,0 +1,200 @@
+---
+title: "Auctions Commands"
+description: "Create, search, manage, and delete minion auctions through Discord"
+---
+
+The `/auctions` command provides complete auction management functionality directly in Discord. Create new auction listings, browse the auction house, view your active auctions, and delete expired listings.
+
+## /auctions create
+
+Create a new minion auction listing in the MinionAH marketplace.
+
+<Note>
+You must have a linked MinionAH account to create auctions. Use `/discord link` to connect your account.
+</Note>
+
+### Parameters
+
+<ParamField path="minion_type" type="string" required>
+  The type of minion to auction (e.g., "Clay", "Diamond", "Snow"). This field has autocomplete support - start typing to see available minion types.
+</ParamField>
+
+<ParamField path="minion_tier" type="integer" required>
+  The tier of the minion to auction. Choose from Tier 1 through Tier 12.
+  
+  **Choices:** `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`, `12`
+</ParamField>
+
+<ParamField path="quantity" type="integer" required>
+  The number of minions you're selling in this auction. Must be at least 1.
+</ParamField>
+
+<ParamField path="price" type="integer" required>
+  The price per minion in coins. This is the price for each individual minion, not the total price.
+</ParamField>
+
+<ParamField path="mithril_infusion" type="boolean" default="false">
+  Whether the minion has the Mithril Infusion upgrade, which provides a 10% speed boost.
+</ParamField>
+
+<ParamField path="free_will" type="boolean" default="false">
+  Whether the minion has the Free Will upgrade, which provides a 10% speed boost.
+</ParamField>
+
+<ParamField path="negotiable" type="boolean" default="false">
+  Mark the price as negotiable, allowing potential buyers to make offers.
+</ParamField>
+
+### Usage Examples
+
+<CodeGroup>
+```bash Basic Auction
+/auctions create minion_type:Clay minion_tier:11 quantity:1 price:5000000
+```
+
+```bash With Upgrades
+/auctions create minion_type:Diamond minion_tier:12 quantity:5 price:8000000 mithril_infusion:true free_will:true
+```
+
+```bash Negotiable Price
+/auctions create minion_type:Snow minion_tier:11 quantity:10 price:4500000 negotiable:true
+```
+</CodeGroup>
+
+### Interactive Workflow
+
+After submitting the command, you'll receive an interactive confirmation dialog showing:
+- Auction preview with all details
+- Total auction value calculation
+- Action buttons to confirm or cancel the listing
+
+---
+
+## /auctions search
+
+Search and browse auctions in the MinionAH marketplace. View all listings or filter by minion type and tier.
+
+### Parameters
+
+<ParamField path="minion_type" type="string">
+  Filter results by minion type. This field has autocomplete support. Leave empty to view all auctions.
+</ParamField>
+
+<ParamField path="minion_tier" type="integer">
+  Filter results by minion tier.
+  
+  **Choices:** `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`, `12`
+</ParamField>
+
+### Usage Examples
+
+<CodeGroup>
+```bash View All Auctions
+/auctions search
+```
+
+```bash Search by Minion Type
+/auctions search minion_type:Clay
+```
+
+```bash Search by Type and Tier
+/auctions search minion_type:Diamond minion_tier:12
+```
+
+```bash Search by Tier Only
+/auctions search minion_tier:11
+```
+</CodeGroup>
+
+### Interactive Features
+
+The search results include:
+- **Pagination**: Navigate through multiple pages of results
+- **Sorting Options**: Order by price, date, or other criteria
+- **Page Jump**: Quickly jump to a specific page number
+- **Detailed View**: See complete auction information including seller, upgrades, and contact options
+
+---
+
+## /auctions myauctions
+
+View all your active auction listings on MinionAH.
+
+<Note>
+You must have a linked MinionAH account to view your auctions. Use `/discord link` to connect your account.
+</Note>
+
+### Parameters
+
+This command takes no parameters.
+
+### Usage Example
+
+```bash
+/auctions myauctions
+```
+
+### Features
+
+- View all your currently listed auctions
+- Uses the same interactive interface as `/auctions search`
+- Sort and filter your listings
+- Quick access to auction management actions
+
+---
+
+## /auctions delete
+
+Delete one of your auction listings from the marketplace.
+
+<Note>
+You can only delete auctions that you created. This action cannot be undone.
+</Note>
+
+### Parameters
+
+<ParamField path="auction" type="string" required>
+  The ID of the auction to delete. This field has autocomplete support showing your active auctions.
+</ParamField>
+
+### Usage Example
+
+```bash
+/auctions delete auction:abc123
+```
+
+### Interactive Workflow
+
+1. Select the auction from the autocomplete list
+2. Review the auction details in the confirmation dialog
+3. Confirm or cancel the deletion
+
+<Warning>
+Deleting an auction is permanent and cannot be undone. Make sure you want to remove the listing before confirming.
+</Warning>
+
+---
+
+## Common Features
+
+<Accordion title="Account Linking Required">
+  Most auction commands require a linked MinionAH account. If you see an error about a missing linked account:
+  
+  1. Run `/discord link`
+  2. Click the provided button to visit MinionAH.com
+  3. Log in and connect your Discord account in account settings
+  4. Return to Discord and try the command again
+</Accordion>
+
+<Accordion title="Autocomplete Support">
+  Many fields support autocomplete:
+  
+  - **minion_type**: Start typing to see matching minion types
+  - **auction** (in delete): Shows your active auctions with preview information
+  
+  Begin typing and Discord will show relevant suggestions.
+</Accordion>
+
+<Accordion title="Maintenance Mode">
+  If the bot is in maintenance mode, auction commands will be temporarily unavailable. You'll receive a notification if this is the case. Try again later or check the MinionAH Discord server for status updates.
+</Accordion>

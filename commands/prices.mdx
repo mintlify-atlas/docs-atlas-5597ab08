@@ -1,0 +1,157 @@
+---
+title: "Prices Command"
+description: "Check current market prices for minions on the MinionAH marketplace"
+---
+
+The `/prices` command allows you to quickly check the current market prices for any minion or view a comprehensive price list for all minions.
+
+## Command Overview
+
+```bash
+/prices [type] [tier]
+```
+
+Query the MinionAH marketplace for current minion prices. Use this to:
+- Check the going rate for a specific minion
+- View prices for all tiers of a minion type
+- Browse a complete price list for all minions
+- Make informed decisions when buying or selling
+
+## Parameters
+
+<ParamField path="type" type="string">
+  The type of minion to check the price for (e.g., "Clay", "Diamond", "Snow"). Leave empty to view prices for all minion types.
+  
+  **Optional**: If not provided, you'll see a complete price list for all minions.
+</ParamField>
+
+<ParamField path="tier" type="integer">
+  The tier of the minion to check the price for.
+  
+  **Choices:** `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`, `12`
+  
+  **Optional**: If not provided with a type, you'll see prices for all tiers of that minion type.
+</ParamField>
+
+## Usage Examples
+
+<CodeGroup>
+```bash All Minions Price List
+/prices
+```
+
+```bash Specific Minion Type
+/prices type:Clay
+```
+
+```bash Specific Minion and Tier
+/prices type:Diamond tier:12
+```
+
+```bash All Tier 11 Minions
+/prices tier:11
+```
+</CodeGroup>
+
+## Interactive Features
+
+The price display includes several interactive features:
+
+<Steps>
+  <Step title="Pagination">
+    Browse through multiple pages if viewing many prices at once. Use the navigation buttons to move between pages.
+  </Step>
+  
+  <Step title="Page Jump">
+    Quickly jump to a specific page number using the page jump feature for faster navigation through large price lists.
+  </Step>
+  
+  <Step title="Real-time Data">
+    Prices are calculated from current active listings on the marketplace, giving you up-to-date market information.
+  </Step>
+</Steps>
+
+## Understanding Price Data
+
+The price information displayed may include:
+
+- **Average Price**: The mean price across all active listings
+- **Lowest Price**: The cheapest available listing
+- **Highest Price**: The most expensive listing
+- **Number of Listings**: How many auctions are currently active
+
+<Note>
+Prices are based on current active listings. If no auctions exist for a specific minion, no price data will be displayed.
+</Note>
+
+## Use Cases
+
+<Accordion title="Before Creating an Auction">
+  Check the current market price before listing your minion to ensure competitive pricing:
+  
+  ```bash
+  /prices type:Clay tier:11
+  ```
+  
+  This helps you:
+  - Price competitively
+  - Avoid underpricing your minions
+  - Understand market demand
+</Accordion>
+
+<Accordion title="Before Buying">
+  Compare prices across sellers to find the best deal:
+  
+  ```bash
+  /prices type:Diamond tier:12
+  ```
+  
+  Then use `/auctions search` to find specific listings at your target price.
+</Accordion>
+
+<Accordion title="Market Research">
+  View all prices to identify:
+  
+  ```bash
+  /prices
+  ```
+  
+  - Which minions are most valuable
+  - Price trends across tiers
+  - Investment opportunities
+</Accordion>
+
+<Accordion title="Quick Price Checks">
+  Get instant price information without leaving Discord:
+  
+  ```bash
+  /prices type:Snow tier:11
+  ```
+  
+  No need to visit the website for quick reference.
+</Accordion>
+
+## Tips
+
+<CardGroup cols={2}>
+  <Card title="Check Before Listing" icon="tag">
+    Always check prices before creating an auction to ensure competitive pricing.
+  </Card>
+  
+  <Card title="Compare Multiple Tiers" icon="layer-group">
+    Use the type-only search to see all tiers and identify the best value.
+  </Card>
+  
+  <Card title="Track Price Changes" icon="chart-line">
+    Periodically check prices to understand market trends and price fluctuations.
+  </Card>
+  
+  <Card title="Combine with Search" icon="magnifying-glass">
+    Use `/prices` for overview, then `/auctions search` for detailed listings.
+  </Card>
+</CardGroup>
+
+## Related Commands
+
+- [`/auctions search`](/commands/auctions) - Search for specific listings
+- [`/auctions create`](/commands/auctions) - Create a new auction listing

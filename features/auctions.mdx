@@ -1,0 +1,238 @@
+---
+title: Auction Management
+description: Create, search, and manage minion auctions on the MinionAH marketplace
+---
+
+The auction system is the core feature of MinionAH Bot, allowing you to buy and sell Hypixel Skyblock minions through Discord. All auction commands are accessible via the `/auctions` command group.
+
+## Available Commands
+
+The auction system provides four main subcommands:
+
+<CardGroup cols={2}>
+  <Card title="Create Auctions" icon="plus" href="#creating-auctions">
+    List your minions for sale
+  </Card>
+  <Card title="Search Auctions" icon="magnifying-glass" href="#searching-auctions">
+    Find minions to purchase
+  </Card>
+  <Card title="My Auctions" icon="list" href="#viewing-your-auctions">
+    View your active listings
+  </Card>
+  <Card title="Delete Auctions" icon="trash" href="#deleting-auctions">
+    Remove your listings
+  </Card>
+</CardGroup>
+
+## Creating Auctions
+
+Create new auction listings to sell your minions.
+
+### Command
+
+```
+/auctions create
+```
+
+### Required Parameters
+
+<Steps>
+  <Step title="Minion Type">
+    Select the type of minion you're selling (e.g., Clay, Cobblestone, Snow). This field features autocomplete to help you find the minion quickly.
+  </Step>
+  
+  <Step title="Minion Tier">
+    Choose the tier of the minion (1-12). Higher tier minions are generally more valuable.
+  </Step>
+  
+  <Step title="Quantity">
+    Specify how many minions you're selling in this auction.
+  </Step>
+  
+  <Step title="Price">
+    Set the price per minion in coins. This is the amount buyers will pay for each individual minion.
+  </Step>
+</Steps>
+
+### Optional Parameters
+
+Enhance your auction with additional details:
+
+- **Mithril Infusion**: Indicates the minion has a 10% speed boost from Mithril Infusion
+- **Free Will**: Indicates the minion has a 10% speed boost from Free Will enchantment
+- **Negotiable**: Mark the price as negotiable to allow buyers to make offers
+
+### Example
+
+```
+/auctions create
+  minion_type: Clay
+  minion_tier: 11
+  quantity: 5
+  price: 1000000
+  mithril_infusion: true
+  negotiable: false
+```
+
+<Note>
+You must have a linked MinionAH account to create auctions. Use `/discord link` to connect your account.
+</Note>
+
+### Confirmation Process
+
+After submitting your auction details, the bot will display a confirmation message showing:
+
+- Minion type and tier with emoji
+- Total quantity and price
+- Special attributes (infusions, negotiability)
+- Creation timestamp
+
+Confirm or cancel the auction using the action buttons provided.
+
+## Searching Auctions
+
+Browse the marketplace to find minions to purchase.
+
+### Command
+
+```
+/auctions search
+```
+
+### Optional Filters
+
+- **minion_type**: Filter by specific minion type (with autocomplete)
+- **minion_tier**: Filter by tier (1-12)
+
+If no filters are provided, you'll see all available auctions.
+
+### Search Results Display
+
+Each auction listing shows:
+
+- **Minion name** with custom emoji
+- **Price** per minion (formatted for readability)
+- **Amount** available
+- **Creation time** (relative timestamp)
+- **Last bumped** time (if applicable)
+- **Free Will** status (Yes/No)
+- **Mithril Infusion** status (Yes/No)
+
+The search interface also displays:
+- Total number of auctions matching your criteria
+- Total number of minions available across all matching auctions
+- Current page number
+
+### Navigation Controls
+
+<Accordion title="Pagination">
+  Use the navigation buttons to browse through search results:
+  - **First Page**: Jump to the beginning
+  - **Previous**: Go back one page
+  - **Next**: Advance one page
+  - **Last Page**: Jump to the end
+  - **Page Jump**: Enter a specific page number
+</Accordion>
+
+<Accordion title="Sorting">
+  Sort auctions by price using the dropdown menu:
+  - **Ascending**: Lowest to highest price
+  - **Descending**: Highest to lowest price
+</Accordion>
+
+### Example Search
+
+```
+/auctions search minion_type: Snow minion_tier: 11
+```
+
+This searches for all Tier 11 Snow minion auctions.
+
+## Viewing Your Auctions
+
+View all auctions you've created.
+
+### Command
+
+```
+/auctions myauctions
+```
+
+This command displays your active listings using the same interface as the search command, but filtered to show only your auctions. The title will display as "YourUsername's Auctions".
+
+<Note>
+You must be logged in and have a linked Discord account to view your auctions.
+</Note>
+
+## Deleting Auctions
+
+Remove auctions you no longer want to keep active.
+
+### Command
+
+```
+/auctions delete
+```
+
+### Parameters
+
+- **auction**: The ID of the auction to delete (with autocomplete showing your auctions)
+
+### Deletion Process
+
+<Steps>
+  <Step title="Select Auction">
+    Use the autocomplete feature to find and select the auction you want to delete by its ID.
+  </Step>
+  
+  <Step title="Confirm Deletion">
+    Review the auction details and confirm you want to delete it using the action buttons.
+  </Step>
+  
+  <Step title="Permanent Removal">
+    Once confirmed, the auction is immediately removed from the marketplace.
+  </Step>
+</Steps>
+
+<Warning>
+Deleting an auction is permanent and cannot be undone. Make sure you're deleting the correct listing.
+</Warning>
+
+## Auction Data Model
+
+Auctions in the system track the following information:
+
+- **Minion Details**: Type, tier, and associated generator
+- **Seller Information**: Linked to your MinionAH user account
+- **Pricing**: Per-minion price and total quantity
+- **Special Attributes**: Mithril Infusion, Free Will, negotiability
+- **Timestamps**: Creation time, last bump time, email notification time
+- **Status**: Active/inactive state
+
+## Tips for Success
+
+<AccordionGroup>
+  <Accordion title="Pricing Strategy">
+    - Check craft costs using `/prices` before setting your price
+    - Consider the minion tier and special attributes when pricing
+    - Mark prices as negotiable for rare or high-value minions
+  </Accordion>
+  
+  <Accordion title="Listing Optimization">
+    - Include accurate information about infusions and enchantments
+    - Group similar minions together for bulk sales
+    - Update or remove sold listings promptly
+  </Accordion>
+  
+  <Accordion title="Searching Effectively">
+    - Use filters to narrow down to specific minions you need
+    - Sort by price to find the best deals
+    - Check both ascending and descending sorts for market overview
+  </Accordion>
+</AccordionGroup>
+
+## Related Features
+
+- [Price Checking](/features/price-checking): View minion craft costs to inform your pricing
+- [Notifications](/features/notifications): Receive alerts about your auctions
+- [User Settings](/features/user-settings): Manage your account and preferences

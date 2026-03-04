@@ -1,0 +1,344 @@
+---
+title: Notifications
+description: Receive Discord notifications for messages, auction activity, and marketplace updates
+---
+
+MinionAH Bot sends automated Discord notifications to keep you informed about important events related to your account, auctions, and marketplace activity.
+
+## Notification Types
+
+The bot supports three notification delivery methods:
+
+<CardGroup cols={3}>
+  <Card title="Discord" icon="discord">
+    Direct messages in Discord (primary method)
+  </Card>
+  <Card title="Email" icon="envelope">
+    Email notifications to your registered address
+  </Card>
+  <Card title="Device" icon="mobile">
+    Push notifications to mobile devices via FCM
+  </Card>
+</CardGroup>
+
+## Available Notifications
+
+### Message Notifications
+
+Receive alerts when another user sends you a message on MinionAH.
+
+#### What You'll See
+
+When someone messages you, the bot sends a Discord DM with:
+
+- **Title**: "You have a new message"
+- **Sender**: Username and avatar of the person who messaged you
+- **Mention**: A Discord mention so you're notified
+- **Action Buttons**:
+  - **View Chat**: Direct link to the conversation
+  - **Manage Notifications**: Link to notification settings
+
+#### Example
+
+```
+📬 You have a new message
+
+Hello @YourUsername,
+
+**CoolTrader123** has sent you a message
+
+[View Chat] [Manage Notifications]
+```
+
+<Note>
+Message notifications help you respond quickly to potential buyers or sellers interested in your auctions.
+</Note>
+
+### Expiring Auction Notifications
+
+Get notified when your auctions are about to expire.
+
+#### What You'll See
+
+The notification includes:
+
+- **Title**: "Auctions Expiring Soon!"
+- **Count**: Number of auctions expiring
+- **Listing Details**: Each expiring auction with:
+  - Minion emoji
+  - Quantity
+  - Minion name and tier
+- **Action Button**: Link to manage notifications
+
+#### Example
+
+```
+⏰ Auctions Expiring Soon!
+
+Hello @YourUsername,
+
+2 of your auctions are expiring soon!
+
+• 🧱 5x Clay Minion XI
+• ❄️ 3x Snow Minion X
+
+[Manage Notifications]
+```
+
+<Warning>
+Expiring auction notifications give you time to relist or update your auctions before they're removed from the marketplace.
+</Warning>
+
+## Notification Settings
+
+Control which notifications you receive and how you receive them.
+
+### Settings Model
+
+Your notification preferences are stored in the NotificationSettings model:
+
+```typescript
+model NotificationSettings {
+  id                  String             @id
+  notificationType    NotificationType[] // EMAIL, DEVICE, DISCORD
+  marketNotifications Boolean            @default(true)
+  socialNotifications Boolean            @default(true)
+  fcmTokens           String[]           // For device notifications
+}
+```
+
+### Notification Categories
+
+<Accordion title="Market Notifications">
+  Alerts related to your auctions and marketplace activity:
+  - Expiring auctions
+  - Auction status changes
+  - Price updates
+  - Successful sales
+  
+  **Default**: Enabled
+</Accordion>
+
+<Accordion title="Social Notifications">
+  Alerts related to user interactions:
+  - New messages
+  - Chat replies
+  - User mentions
+  - Trade requests
+  
+  **Default**: Enabled
+</Accordion>
+
+### Managing Your Settings
+
+You can manage notification preferences through:
+
+1. **Web Interface**: Visit `https://minionah.com/profile/settings/notifications`
+2. **Direct Links**: Click "Manage Notifications" in any notification message
+
+<Steps>
+  <Step title="Access Settings">
+    Navigate to the notifications settings page on MinionAH.com or click the link in a notification.
+  </Step>
+  
+  <Step title="Choose Delivery Methods">
+    Select which notification types you want (Discord, Email, Device).
+  </Step>
+  
+  <Step title="Toggle Categories">
+    Enable or disable Market Notifications and Social Notifications individually.
+  </Step>
+  
+  <Step title="Save Changes">
+    Your preferences are saved automatically and take effect immediately.
+  </Step>
+</Steps>
+
+## Discord Integration
+
+### How Discord Notifications Work
+
+The bot uses Discord's DM system to send notifications:
+
+1. **Backend Trigger**: The MinionAH backend API triggers a notification
+2. **REST API**: Sends a POST request to the bot's notification endpoint
+3. **DM Channel**: Bot opens a DM channel with your Discord account
+4. **Message Delivery**: Sends an embed with relevant information and action buttons
+
+### Technical Flow
+
+```typescript
+// Notification endpoints
+POST /notifications/send              // User messages
+POST /notifications/expiring_auctions // Auction expiry alerts
+POST /notifications/test              // Test notifications
+```
+
+### DM Channel Requirements
+
+<Warning>
+You must have DMs enabled from server members for the bot to send you notifications. If your DMs are closed, you'll miss important alerts.
+</Warning>
+
+To ensure you receive notifications:
+
+- Keep DMs enabled in your Discord privacy settings
+- Don't block the MinionAH bot
+- Stay in at least one server where the bot is present
+
+## Notification Customization
+
+### Delivery Method Selection
+
+Choose which notification methods work best for you:
+
+<Tabs>
+  <Tab title="Discord Only">
+    **Best for**: Users who are frequently active on Discord
+    
+    - Instant delivery
+    - Interactive buttons
+    - No additional setup required
+  </Tab>
+  
+  <Tab title="Email + Discord">
+    **Best for**: Users who want backup notifications
+    
+    - Redundant delivery
+    - Email archive of notifications
+    - Access from any device
+  </Tab>
+  
+  <Tab title="All Methods">
+    **Best for**: Power users who never want to miss an alert
+    
+    - Maximum reliability
+    - Push notifications on mobile
+    - Multi-channel coverage
+  </Tab>
+</Tabs>
+
+### Category Preferences
+
+Fine-tune which types of notifications you receive:
+
+| Category | Examples | Use Case |
+|----------|----------|----------|
+| Market Notifications | Expiring auctions, sales | Active sellers who need auction updates |
+| Social Notifications | New messages, chat replies | Users engaged in trading conversations |
+| Both | All notification types | Users who want full awareness |
+| Neither | No notifications | Users who prefer to check manually |
+
+## Notification Timing
+
+### Message Notifications
+
+- **Trigger**: When a user sends you a message
+- **Timing**: Immediate (within seconds)
+- **Frequency**: One notification per message
+
+### Expiring Auction Notifications
+
+- **Trigger**: Based on auction expiry time
+- **Timing**: Sent before auction expires (configurable)
+- **Frequency**: Once per auction batch
+
+<Note>
+The system tracks when notifications were sent using timestamp fields like `timeEmailed` and prevents duplicate notifications for the same event.
+</Note>
+
+## Mobile Push Notifications
+
+Enable device notifications for alerts on your mobile device.
+
+### Setup Process
+
+<Steps>
+  <Step title="Install Mobile App">
+    Download the MinionAH mobile app (if available) or access the web app.
+  </Step>
+  
+  <Step title="Enable Push Notifications">
+    Grant notification permissions when prompted.
+  </Step>
+  
+  <Step title="Register FCM Token">
+    The app automatically registers your device's Firebase Cloud Messaging (FCM) token.
+  </Step>
+  
+  <Step title="Receive Notifications">
+    Your device will receive push notifications based on your settings.
+  </Step>
+</Steps>
+
+### FCM Token Management
+
+The system stores multiple FCM tokens in your notification settings, allowing notifications across multiple devices simultaneously.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Not Receiving Discord Notifications">
+    **Check:**
+    - DMs are enabled in Discord privacy settings
+    - You haven't blocked the MinionAH bot
+    - Discord notifications are enabled in your MinionAH settings
+    - You're in a server where the bot is present
+  </Accordion>
+  
+  <Accordion title="Too Many Notifications">
+    **Solution:**
+    - Visit notification settings on MinionAH.com
+    - Disable specific categories you don't need
+    - Remove unnecessary notification delivery methods
+  </Accordion>
+  
+  <Accordion title="Missing Expiring Auction Alerts">
+    **Check:**
+    - Market Notifications are enabled
+    - Your auctions have valid expiry times set
+    - You have at least one notification delivery method enabled
+  </Accordion>
+  
+  <Accordion title="Notification Delays">
+    **Causes:**
+    - Discord API rate limits
+    - High notification volume
+    - Network connectivity issues
+    
+    **Expected Delay**: Usually under 5 seconds
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Enable Multiple Methods" icon="shield-check">
+    Use both Discord and Email for important notifications to ensure you never miss critical alerts.
+  </Card>
+  
+  <Card title="Customize by Activity" icon="sliders">
+    Adjust notification settings based on your current activity level—enable more when actively trading.
+  </Card>
+  
+  <Card title="Regular Check-ins" icon="clock">
+    Even with notifications enabled, periodically check your auctions and messages manually.
+  </Card>
+  
+  <Card title="Test Notifications" icon="vial">
+    Use the test notification endpoint to verify your settings are working correctly.
+  </Card>
+</CardGroup>
+
+## Privacy and Security
+
+- Notifications contain only necessary information (usernames, auction details)
+- No sensitive data like passwords or payment info is included
+- You can disable notifications at any time
+- Notification history is not permanently stored
+
+## Related Features
+
+- [User Settings](/features/user-settings): Configure your account and notification preferences
+- [Auction Management](/features/auctions): The source of auction-related notifications
+- [Discord Commands](/commands/discord): Connect your Discord account to receive notifications

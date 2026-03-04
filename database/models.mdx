@@ -1,0 +1,495 @@
+---
+title: Database Models
+description: Detailed documentation of all database models, fields, and relationships
+---
+
+## Authentication Models
+
+### User
+
+The core user model representing registered accounts.
+
+<ResponseField name="id" type="String" required>
+  Unique identifier for the user
+</ResponseField>
+
+<ResponseField name="username" type="String" required>
+  Unique username for the account
+</ResponseField>
+
+<ResponseField name="loggedInAt" type="DateTime" default="now()">
+  Last login timestamp, automatically updated
+</ResponseField>
+
+<ResponseField name="createdAt" type="DateTime" default="now()">
+  Account creation timestamp
+</ResponseField>
+
+<ResponseField name="syncedAt" type="DateTime?">
+  Optional timestamp for last data synchronization
+</ResponseField>
+
+**Relations:**
+- `sessions`: User's active sessions
+- `key`: Authentication keys and password hashes
+- `auctions`: Auction listings created by the user
+- `chatsAsUser1`: Chats where user is participant 1
+- `chatsAsUser2`: Chats where user is participant 2
+- `messages`: Messages sent by the user
+- `settings`: User preferences and settings
+- `oauth`: Connected OAuth providers
+
+---
+
+### Session
+
+Manages active user sessions for authentication.
+
+<ResponseField name="id" type="String" required>
+  Unique session identifier
+</ResponseField>
+
+<ResponseField name="userId" type="String" required>
+  Reference to the user who owns this session
+</ResponseField>
+
+<ResponseField name="expiresAt" type="DateTime" required>
+  Session expiration timestamp
+</ResponseField>
+
+**Relations:**
+- `user`: The user this session belongs to (cascade delete)
+
+**Indexes:**
+- `userId`: For efficient session lookup by user
+
+---
+
+### Key
+
+Stores password hashes and authentication credentials.
+
+<ResponseField name="id" type="String" required>
+  Unique key identifier
+</ResponseField>
+
+<ResponseField name="hashed_password" type="String?">
+  Bcrypt hashed password (nullable for OAuth-only accounts)
+</ResponseField>
+
+<ResponseField name="user_id" type="String" required>
+  Reference to the user who owns this key
+</ResponseField>
+
+**Relations:**
+- `user`: The user this key belongs to (cascade delete)
+
+**Indexes:**
+- `user_id`: For fast authentication lookups
+
+---
+
+### UserOAuthProvider
+
+Tracks OAuth authentication providers linked to user accounts.
+
+<ResponseField name="id" type="String" required>
+  Unique identifier for the OAuth provider connection
+</ResponseField>
+
+<ResponseField name="userId" type="String" required>
+  Reference to the user account
+</ResponseField>
+
+<ResponseField name="provider" type="String" required>
+  OAuth provider name (e.g., "google", "discord")
+</ResponseField>
+
+<ResponseField name="providerUsername" type="String" required>
+  Username from the OAuth provider
+</ResponseField>
+
+<ResponseField name="syncedAt" type="DateTime?" default="now()">
+  Last synchronization timestamp with the provider
+</ResponseField>
+
+**Relations:**
+- `user`: The user this OAuth connection belongs to (cascade delete)
+
+**Indexes:**
+- `userId`: For efficient OAuth provider queries
+
+## Settings Models
+
+### UserSettings
+
+Parent container for all user settings and preferences.
+
+<ResponseField name="id" type="String" required>
+  Settings identifier (matches user ID)
+</ResponseField>
+
+<ResponseField name="user_id" type="String" required>
+  Reference to the user (unique constraint)
+</ResponseField>
+
+**Relations:**
+- `user`: The user these settings belong to (cascade delete)
+- `profileSettings`: Public profile preferences
+- `notificationSettings`: Notification preferences
+
+---
+
+### ProfileSettings
+
+Public profile information and customization.
+
+<ResponseField name="id" type="String" required>
+  Profile settings identifier
+</ResponseField>
+
+<ResponseField name="email" type="String?">
+  Public email address (optional)
+</ResponseField>
+
+<ResponseField name="bio" type="String?">
+  User biography or description
+</ResponseField>
+
+<ResponseField name="urls" type="String[]">
+  Array of social media or website URLs
+</ResponseField>
+
+**Relations:**
+- `userSettings`: Parent settings record (cascade delete)
+
+---
+
+### NotificationSettings
+
+Manages notification preferences and push notification tokens.
+
+<ResponseField name="id" type="String" required>
+  Notification settings identifier
+</ResponseField>
+
+<ResponseField name="notificationType" type="NotificationType[]" required>
+  Array of enabled notification channels (EMAIL, DEVICE, DISCORD)
+</ResponseField>
+
+<ResponseField name="marketNotifications" type="Boolean" default="true">
+  Enable notifications for marketplace activity
+</ResponseField>
+
+<ResponseField name="socialNotifications" type="Boolean" default="true">
+  Enable notifications for messages and social interactions
+</ResponseField>
+
+<ResponseField name="fcmTokens" type="String[]" required>
+  Firebase Cloud Messaging tokens for push notifications
+</ResponseField>
+
+**Relations:**
+- `userSettings`: Parent settings record (cascade delete)
+
+## Marketplace Models
+
+### Minion
+
+Represents a Hypixel Skyblock minion type available for auction.
+
+<ResponseField name="id" type="String" required>
+  Unique minion identifier
+</ResponseField>
+
+<ResponseField name="name" type="String" required>
+  Display name of the minion
+</ResponseField>
+
+<ResponseField name="generator" type="String" required>
+  Resource type the minion generates
+</ResponseField>
+
+<ResponseField name="generator_tier" type="Int" required>
+  Tier of the generator
+</ResponseField>
+
+<ResponseField name="maxTier" type="Int" required>
+  Maximum available tier for this minion
+</ResponseField>
+
+<ResponseField name="craftCost" type="Float" default="0">
+  Crafting cost in coins
+</ResponseField>
+
+**Relations:**
+- `sellers`: Auctions listing this minion (cascade delete)
+
+---
+
+### Auction
+
+Represents an active auction listing for a minion.
+
+<ResponseField name="id" type="String" default="cuid()">
+  Unique auction identifier (auto-generated)
+</ResponseField>
+
+<ResponseField name="minion_id" type="String" required>
+  Reference to the minion being sold
+</ResponseField>
+
+<ResponseField name="user_id" type="String" required>
+  Reference to the user selling the minion
+</ResponseField>
+
+<ResponseField name="hasInfusion" type="Boolean" default="false">
+  Whether the minion has an infusion upgrade
+</ResponseField>
+
+<ResponseField name="hasFreeWill" type="Boolean" default="false">
+  Whether the minion has a free will upgrade
+</ResponseField>
+
+<ResponseField name="isNegotiable" type="Boolean" default="false">
+  Whether the seller accepts price negotiations
+</ResponseField>
+
+<ResponseField name="price" type="Float" required>
+  Asking price in coins
+</ResponseField>
+
+<ResponseField name="amount" type="Int" required>
+  Quantity of minions available
+</ResponseField>
+
+<ResponseField name="timeCreated" type="DateTime" default="now()">
+  Auction creation timestamp (auto-updates)
+</ResponseField>
+
+<ResponseField name="timeBumped" type="DateTime?">
+  Last time the auction was bumped to the top
+</ResponseField>
+
+<ResponseField name="timeEmailed" type="DateTime?">
+  Last time email notification was sent about this auction
+</ResponseField>
+
+**Relations:**
+- `user`: The seller (cascade delete)
+- `minion`: The minion being sold (cascade delete)
+
+**Indexes:**
+- `user_id`: For finding all auctions by a user
+- `minion_id`: For finding all auctions for a specific minion
+
+<Note>
+  The `timeCreated` field uses `@updatedAt`, meaning it updates automatically on every record modification.
+</Note>
+
+## Messaging Models
+
+### Chat
+
+Represents a conversation thread between two users.
+
+<ResponseField name="id" type="String" default="cuid()">
+  Unique chat identifier (auto-generated)
+</ResponseField>
+
+<ResponseField name="user1_id" type="String" required>
+  Reference to the first participant
+</ResponseField>
+
+<ResponseField name="user2_id" type="String" required>
+  Reference to the second participant
+</ResponseField>
+
+<ResponseField name="createdAt" type="DateTime" default="now()">
+  Chat creation timestamp
+</ResponseField>
+
+<ResponseField name="user1Read" type="Boolean" default="false">
+  Whether user1 has read the latest messages
+</ResponseField>
+
+<ResponseField name="user2Read" type="Boolean" default="false">
+  Whether user2 has read the latest messages
+</ResponseField>
+
+<ResponseField name="user1Emailed" type="Boolean" default="false">
+  Whether user1 has been emailed about new messages
+</ResponseField>
+
+<ResponseField name="user2Emailed" type="Boolean" default="false">
+  Whether user2 has been emailed about new messages
+</ResponseField>
+
+**Relations:**
+- `user1`: First participant (cascade delete)
+- `user2`: Second participant (cascade delete)
+- `messages`: All messages in this chat
+
+<Note>
+  Each chat has exactly two participants. The read and emailed flags track notification state separately for each user.
+</Note>
+
+---
+
+### Message
+
+Represents an individual message in a chat.
+
+<ResponseField name="id" type="String" default="cuid()">
+  Unique message identifier (auto-generated)
+</ResponseField>
+
+<ResponseField name="chat_id" type="String" required>
+  Reference to the parent chat
+</ResponseField>
+
+<ResponseField name="user_id" type="String" required>
+  Reference to the user who sent the message
+</ResponseField>
+
+<ResponseField name="content" type="String" required>
+  Message content (text or auction reference)
+</ResponseField>
+
+<ResponseField name="type" type="MessageType" default="TEXT">
+  Message type (TEXT or AUCTION)
+</ResponseField>
+
+<ResponseField name="createdAt" type="DateTime" default="now()">
+  Message creation timestamp
+</ResponseField>
+
+**Relations:**
+- `chat`: The chat this message belongs to (cascade delete)
+- `user`: The user who sent the message (cascade delete)
+
+**Indexes:**
+- `chat_id`: For efficiently loading all messages in a chat
+- `user_id`: For finding all messages sent by a user
+
+## Enumerations
+
+### NotificationType
+
+Defines available notification delivery channels.
+
+```prisma
+enum NotificationType {
+  EMAIL
+  DEVICE
+  DISCORD
+}
+```
+
+<AccordionGroup>
+  <Accordion title="EMAIL">
+    Send notifications via email to the user's registered email address.
+  </Accordion>
+  
+  <Accordion title="DEVICE">
+    Send push notifications to registered mobile devices using Firebase Cloud Messaging.
+  </Accordion>
+  
+  <Accordion title="DISCORD">
+    Send notifications to Discord via webhooks or direct messages.
+  </Accordion>
+</AccordionGroup>
+
+### MessageType
+
+Specifies the type of content in a message.
+
+```prisma
+enum MessageType {
+  TEXT
+  AUCTION
+}
+```
+
+<AccordionGroup>
+  <Accordion title="TEXT">
+    Standard text message for general conversation.
+  </Accordion>
+  
+  <Accordion title="AUCTION">
+    Message containing a reference to an auction listing, allowing users to share and discuss specific auctions.
+  </Accordion>
+</AccordionGroup>
+
+## Database Operations
+
+### Common Queries
+
+<CodeGroup>
+```typescript Get User with All Relations
+const user = await prisma.user.findUnique({
+  where: { id: userId },
+  include: {
+    settings: {
+      include: {
+        profileSettings: true,
+        notificationSettings: true
+      }
+    },
+    auctions: {
+      include: {
+        minion: true
+      }
+    },
+    oauth: true
+  }
+});
+```
+
+```typescript Get Chat with Messages
+const chat = await prisma.chat.findUnique({
+  where: { id: chatId },
+  include: {
+    user1: true,
+    user2: true,
+    messages: {
+      include: {
+        user: true
+      },
+      orderBy: {
+        createdAt: 'asc'
+      }
+    }
+  }
+});
+```
+
+```typescript Get Auctions for Minion
+const auctions = await prisma.auction.findMany({
+  where: { minion_id: minionId },
+  include: {
+    user: true,
+    minion: true
+  },
+  orderBy: {
+    price: 'asc'
+  }
+});
+```
+</CodeGroup>
+
+### Cascade Behavior
+
+When deleting records, be aware of cascade effects:
+
+<Warning>
+  **User Deletion**: Removes sessions, keys, auctions, messages, chats (if participant), settings, and OAuth providers.
+</Warning>
+
+<Warning>
+  **Minion Deletion**: Removes all auctions listing that minion.
+</Warning>
+
+<Warning>
+  **Chat Deletion**: Removes all messages in that conversation.
+</Warning>

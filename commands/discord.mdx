@@ -1,0 +1,200 @@
+---
+title: "Discord Integration Commands"
+description: "Link and manage your Discord account connection with MinionAH"
+---
+
+The `/discord` command group manages the integration between your Discord account and MinionAH. Linking your accounts enables auction creation, viewing your listings, and other account-specific features.
+
+## Why Link Your Account?
+
+Linking your Discord account with MinionAH enables:
+
+- Creating auction listings directly from Discord
+- Viewing your active auctions with `/auctions myauctions`
+- Managing your auction listings
+- Receiving notifications about your auctions
+- Seamless integration between Discord and the web platform
+
+<Note>
+Account linking is required for most auction management features. You can still browse auctions and check prices without linking.
+</Note>
+
+---
+
+## /discord link
+
+Link your Discord account to your MinionAH account.
+
+### Parameters
+
+This command takes no parameters.
+
+### Usage
+
+```bash
+/discord link
+```
+
+### How It Works
+
+<Steps>
+  <Step title="Run the Command">
+    Execute `/discord link` in Discord. The bot will check if you already have a linked account.
+  </Step>
+  
+  <Step title="Visit MinionAH.com">
+    Click the "Link Discord Account" button in the bot's response. This will take you to your account settings on MinionAH.com.
+  </Step>
+  
+  <Step title="Complete the Link">
+    Log in to your MinionAH account (or create one) and authorize the Discord connection in your account settings.
+  </Step>
+  
+  <Step title="Return to Discord">
+    Once linked, return to Discord and you'll be able to use all account-specific features.
+  </Step>
+</Steps>
+
+### Already Linked?
+
+If your Discord account is already linked, you'll receive a message indicating this along with a link to your account settings where you can manage the connection.
+
+### Example Response
+
+<CodeGroup>
+```text First Time Link
+✅ Link your Discord account to MinionAH
+
+To link your Discord account to MinionAH, click the button below. 
+You will be redirected to your account page on MinionAH.com
+
+[Link Discord Account]
+```
+
+```text Already Linked
+⚠️ Discord Account Already Linked
+
+Your Discord account is already linked to a MinionAH account. 
+If you wish to link a different account, please unlink your 
+current account first using the `/discord unlink` command or 
+visit your account settings on MinionAH.com.
+
+[Go to Account Settings]
+```
+</CodeGroup>
+
+---
+
+## /discord unlink
+
+Unlink your Discord account from your MinionAH account.
+
+<Warning>
+Unlinking removes the connection between your Discord and MinionAH accounts. You will need to link again to use account-specific features.
+</Warning>
+
+### Parameters
+
+This command takes no parameters.
+
+### Usage
+
+```bash
+/discord unlink
+```
+
+### What Happens When You Unlink?
+
+When you unlink your account:
+
+- The connection between Discord and MinionAH is removed
+- You can no longer create auctions from Discord
+- You cannot view your auctions with `/auctions myauctions`
+- You cannot delete auctions from Discord
+- Your MinionAH account and data remain intact
+- You can re-link at any time using `/discord link`
+
+### Example Response
+
+```text
+✅ Discord account unlinked from MinionAH
+
+Your Discord account has been successfully unlinked from your 
+MinionAH account. If you wish to link it again in the future, 
+you can use the `/discord link` command.
+```
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Link button doesn't work">
+    If the link button isn't working:
+    
+    1. Make sure you're clicking the button, not copying a link
+    2. Try running the command again
+    3. Visit https://minionah.com/profile/settings directly
+    4. Ensure you're logged in to MinionAH
+    5. Contact support if issues persist
+  </Accordion>
+  
+  <Accordion title="Commands still say I'm not linked">
+    If commands indicate you're not linked after completing the process:
+    
+    1. Wait a few moments for the link to process
+    2. Run `/discord link` to verify the connection status
+    3. Check your account settings on MinionAH.com
+    4. Try unlinking and re-linking your account
+    5. Ensure you're using the same Discord account
+  </Accordion>
+  
+  <Accordion title="Want to link a different MinionAH account">
+    To link a different MinionAH account:
+    
+    1. Run `/discord unlink` to remove the current connection
+    2. Run `/discord link` to start the linking process
+    3. Log in with the different MinionAH account
+    4. Complete the authorization
+  </Accordion>
+  
+  <Accordion title="Can't find the link option on MinionAH.com">
+    To find the Discord linking option:
+    
+    1. Log in to MinionAH.com
+    2. Navigate to your profile settings
+    3. Look for the "Connected Accounts" or "Integrations" section
+    4. Find the Discord connection option
+    5. Follow the on-screen instructions
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Privacy & Security
+
+<CardGroup cols={2}>
+  <Card title="What Data is Shared?" icon="shield-check">
+    Only your Discord username is shared with MinionAH to establish the account link. No sensitive data is transmitted.
+  </Card>
+  
+  <Card title="Can I Revoke Access?" icon="lock">
+    Yes, you can unlink your account at any time using `/discord unlink` or through your MinionAH account settings.
+  </Card>
+  
+  <Card title="Is It Secure?" icon="key">
+    The linking process uses secure OAuth authentication. Your Discord credentials are never shared with MinionAH.
+  </Card>
+  
+  <Card title="What Permissions Are Needed?" icon="user-check">
+    The bot only needs permission to identify your Discord account. No additional permissions are required.
+  </Card>
+</CardGroup>
+
+---
+
+## Related Commands
+
+- [`/auctions create`](/commands/auctions) - Requires linked account
+- [`/auctions myauctions`](/commands/auctions) - Requires linked account
+- [`/auctions delete`](/commands/auctions) - Requires linked account

@@ -1,0 +1,227 @@
+---
+title: "Maintenance Command"
+description: "Admin command for managing bot maintenance mode"
+---
+
+The `/maintenance` command is an administrative tool for managing the bot's maintenance mode. This command is restricted to bot administrators only.
+
+<Warning>
+This command is for bot administrators only. Regular users cannot execute this command.
+</Warning>
+
+## Command Overview
+
+```bash
+/maintenance enable:[true/false]
+```
+
+The maintenance command allows administrators to enable or disable maintenance mode, which temporarily restricts bot functionality for updates, bug fixes, or other maintenance tasks.
+
+## Parameters
+
+<ParamField path="enable" type="boolean" required>
+  Set the maintenance mode status.
+  
+  - `true`: Enable maintenance mode (restricts bot functionality)
+  - `false`: Disable maintenance mode (resume normal operations)
+</ParamField>
+
+## Usage Examples
+
+<CodeGroup>
+```bash Enable Maintenance Mode
+/maintenance enable:true
+```
+
+```bash Disable Maintenance Mode
+/maintenance enable:false
+```
+</CodeGroup>
+
+## What Happens in Maintenance Mode?
+
+When maintenance mode is enabled:
+
+<Steps>
+  <Step title="Bot Status Changes">
+    The bot's Discord presence updates to show "MinionAH is in maintenance mode" and the status changes to Do Not Disturb (red).
+  </Step>
+  
+  <Step title="Commands Are Restricted">
+    Most user commands will return a maintenance mode notification and will not execute.
+  </Step>
+  
+  <Step title="Existing Operations Continue">
+    Any operations already in progress may complete, but new operations are blocked.
+  </Step>
+  
+  <Step title="Admin Commands Still Work">
+    Administrative commands, including `/maintenance`, remain accessible to authorized users.
+  </Step>
+</Steps>
+
+## Permission Requirements
+
+<Note>
+Only the configured bot administrator can execute this command. The admin is identified by the `ADMIN_ID` environment variable.
+</Note>
+
+If an unauthorized user attempts to run this command, they will receive an "Unauthorized" error message.
+
+## Response Messages
+
+<Accordion title="Enabling Maintenance Mode">
+  When you enable maintenance mode:
+  
+  ```text
+  Maintenance mode enabled
+  ```
+  
+  The bot will:
+  - Update its status to "Do Not Disturb"
+  - Display "MinionAH is in maintenance mode" as its activity
+  - Block most user commands
+</Accordion>
+
+<Accordion title="Disabling Maintenance Mode">
+  When you disable maintenance mode:
+  
+  ```text
+  Maintenance mode disabled
+  ```
+  
+  The bot will:
+  - Update its status to "Online"
+  - Display "Vibing with MinionAH" as its activity
+  - Resume normal command processing
+</Accordion>
+
+<Accordion title="Unauthorized Access Attempt">
+  If a non-admin user tries to run the command:
+  
+  ```text
+  ⚠️ Unauthorized
+  
+  You do not have permission to execute this command.
+  ```
+</Accordion>
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Scheduled Maintenance" icon="calendar">
+    Enable maintenance mode before performing database updates, bot updates, or infrastructure changes.
+  </Card>
+  
+  <Card title="Emergency Issues" icon="triangle-exclamation">
+    Quickly disable bot functionality if critical bugs or issues are detected that could affect users.
+  </Card>
+  
+  <Card title="Feature Deployment" icon="rocket">
+    Put the bot in maintenance mode while deploying new features that require downtime.
+  </Card>
+  
+  <Card title="System Upgrades" icon="server">
+    Use during server migrations, dependency updates, or other system-level changes.
+  </Card>
+</CardGroup>
+
+## Best Practices
+
+<Steps>
+  <Step title="Announce in Advance">
+    When possible, announce maintenance windows in your Discord server before enabling maintenance mode.
+  </Step>
+  
+  <Step title="Keep It Brief">
+    Minimize the duration of maintenance mode to reduce user disruption.
+  </Step>
+  
+  <Step title="Test Before Disabling">
+    Verify that all changes work correctly before disabling maintenance mode.
+  </Step>
+  
+  <Step title="Confirm After Changes">
+    After disabling maintenance mode, test key commands to ensure the bot is functioning properly.
+  </Step>
+</Steps>
+
+## Technical Details
+
+### Bot Presence
+
+The maintenance command controls the bot's Discord presence:
+
+<CodeGroup>
+```json Maintenance Mode Enabled
+{
+  "activities": [{ "name": "MinionAH is in maintenance mode" }],
+  "status": "dnd"
+}
+```
+
+```json Normal Operation
+{
+  "activities": [{ "name": "Vibing with MinionAH" }],
+  "status": "online"
+}
+```
+</CodeGroup>
+
+### Command Blocking
+
+When maintenance mode is active, most commands check the maintenance status before execution and display an appropriate message to users if the bot is unavailable.
+
+<Note>
+The maintenance mode state is managed through the application's central configuration system and persists across bot restarts.
+</Note>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Command not responding">
+    If the maintenance command doesn't respond:
+    
+    1. Verify you're using the correct Discord account (matching ADMIN_ID)
+    2. Check that the bot is online and connected
+    3. Verify the command syntax is correct
+    4. Check bot logs for error messages
+  </Accordion>
+  
+  <Accordion title="Maintenance mode not affecting commands">
+    If commands still work after enabling maintenance mode:
+    
+    1. Verify the command executed successfully
+    2. Check that commands are properly checking maintenance status
+    3. Review the bot's configuration
+    4. Check for caching issues
+  </Accordion>
+  
+  <Accordion title="Can't disable maintenance mode">
+    If you can't disable maintenance mode:
+    
+    1. Try the command again
+    2. Check bot logs for errors
+    3. Verify database connectivity
+    4. Restart the bot if necessary
+    5. Manually update the configuration if needed
+  </Accordion>
+</AccordionGroup>
+
+## Security Considerations
+
+<Warning>
+**Protect Your Admin ID**: The `ADMIN_ID` environment variable should be kept secure. Never share it publicly or commit it to version control.
+</Warning>
+
+- Only one user can be designated as the bot administrator
+- The admin ID is checked on every command execution
+- Unauthorized access attempts are logged
+- The command response is ephemeral (only visible to the command user)
+
+---
+
+## Related Documentation
+
+- [Environment Variables](/configuration/environment) - Learn about setting up the ADMIN_ID
+- [Deployment Guide](/configuration/deployment) - Best practices for production deployments

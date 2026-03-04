@@ -1,80 +1,306 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quickstart
+description: Get up and running with MinionAH Bot in minutes
 ---
 
-## Get started in three steps
+Get started with MinionAH Bot and begin managing your Hypixel Skyblock minion auctions through Discord in just a few steps.
 
-Get your documentation site running locally and make your first customization.
+## Prerequisites
 
-### Step 1: Set up your local environment
+Before you begin, make sure you have:
+- A Discord account
+- Access to a Discord server where you can add bots (requires "Manage Server" permission)
+- A MinionAH account (create one at [minionah.com](https://minionah.com))
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+## Step 1: Add the bot to your Discord server
 
-### Step 2: Deploy your changes
+<Steps>
+  <Step title="Get the invite link">
+    Visit the MinionAH website or contact the server administrator to get the bot invite link.
+  </Step>
+  
+  <Step title="Authorize the bot">
+    Click the invite link and select the Discord server where you want to add the bot. Make sure the bot has the following permissions:
+    - Send Messages
+    - Use Slash Commands
+    - Embed Links
+    - Add Reactions
+  </Step>
+  
+  <Step title="Verify the bot is online">
+    Once added, you should see the MinionAH Bot appear in your server's member list with an online status.
+  </Step>
+</Steps>
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
+<Note>
+  The bot requires "Send Messages" and "Use Slash Commands" permissions to function properly. If slash commands don't appear, check the bot's role permissions.
+</Note>
+
+## Step 2: Link your MinionAH account
+
+To access personalized features like viewing your auctions and managing notifications, link your Discord account to your MinionAH account.
+
+```bash Discord Command
+/discord link
+```
+
+<Steps>
+  <Step title="Run the link command">
+    In any channel where the bot has access, type `/discord link` and send the command.
+  </Step>
+  
+  <Step title="Complete the verification">
+    The bot will respond with a message containing a verification link. Click the "Link Discord Account" button to open the MinionAH authentication page.
+  </Step>
+  
+  <Step title="Authorize the connection">
+    Log in to your MinionAH account if you're not already logged in, then authorize the Discord connection. You'll be redirected back to Discord once complete.
+  </Step>
+</Steps>
+
+<Warning>
+  Keep your account link secure. Don't share verification links with others, as they can be used to link your MinionAH account to someone else's Discord.
+</Warning>
+
+## Step 3: Create your first auction
+
+Now that you're linked, let's create your first minion auction.
+
+```bash Discord Command
+/auctions create
+```
+
+The bot will present an interactive form with the following fields:
+
+<ParamField path="minion_type" type="string" required>
+  The type of minion you're selling (e.g., "Clay", "Snow", "Tarantula"). Use autocomplete to see available options.
+</ParamField>
+
+<ParamField path="minion_tier" type="integer" required>
+  The tier of the minion (1-12). Higher tiers are more valuable.
+</ParamField>
+
+<ParamField path="quantity" type="integer" required>
+  How many minions you're selling in this auction.
+</ParamField>
+
+<ParamField path="price" type="number" required>
+  Your asking price per minion in coins.
+</ParamField>
+
+<ParamField path="mithril_infusion" type="boolean">
+  Whether the minion has Mithril Infusion upgrade (increases speed by 10%).
+</ParamField>
+
+<ParamField path="free_will" type="boolean">
+  Whether the minion has Free Will upgrade (allows minion to work when offline).
+</ParamField>
+
+<ParamField path="negotiable" type="boolean">
+  Whether you're open to price negotiations with buyers.
+</ParamField>
+
+### Example auction
+
+Here's an example of creating an auction for a Tier 11 Clay Minion:
+
+```
+minion_type: Clay
+minion_tier: 11
+quantity: 1
+price: 500000
+mithril_infusion: true
+free_will: false
+negotiable: true
+```
+
+<Accordion title="What happens after creating an auction?">
+  Once you submit the auction form:
+  1. The bot validates your input and checks your account
+  2. The auction is posted to the MinionAH marketplace
+  3. You receive a confirmation message with auction details
+  4. Other users can now find your auction using `/auctions search`
+  5. You'll receive notifications when users message you about the auction
 </Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+## Step 4: Search for auctions
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+Browse the marketplace to find minions you want to buy.
 
-### Step 3: Go live
+```bash Discord Command
+/auctions search
+```
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
+The search command provides:
+- **Filtering**: The bot will prompt you to filter by minion type, tier, or price range
+- **Pagination**: Navigate through results with Previous/Next buttons
+- **Sorting**: Sort by price (low to high or high to low)
+- **Details**: Each auction shows quantity, price, upgrades, and seller info
+
+<CodeGroup>
+```bash Search all auctions
+/auctions search
+```
+
+```bash Search specific minion type
+/auctions search
+# Then select minion type: "Tarantula"
+```
+
+```bash Filter by tier
+/auctions search
+# Then select tier: 11
+```
+</CodeGroup>
+
+## Step 5: Check minion prices
+
+Use the price checking feature to research market values before buying or selling.
+
+```bash Discord Command
+/prices
+```
+
+**Optional parameters:**
+- `type`: Filter by specific minion type
+- `tier`: Filter by specific tier (1-12)
+
+<Accordion title="Example price checks">
+  **Check all minions:**
+  ```bash
+  /prices
+  ```
+  
+  **Check specific type:**
+  ```bash
+  /prices type:Clay
+  ```
+  
+  **Check specific tier:**
+  ```bash
+  /prices tier:11
+  ```
+  
+  **Check specific minion:**
+  ```bash
+  /prices type:Clay tier:11
+  ```
 </Accordion>
+
+The price data includes:
+- Current market prices across all tiers
+- Craft cost (helpful for comparing to market value)
+- Formatted display with emoji indicators
+- Pagination for browsing all minion types
+
+## Additional commands
+
+### View your auctions
+
+See all your active listings:
+
+```bash Discord Command
+/auctions myauctions
+```
+
+This shows:
+- All auctions you've created
+- Time since each was created or last bumped
+- Quick access to manage or delete listings
+
+### Delete an auction
+
+Remove a listing from the marketplace:
+
+```bash Discord Command
+/auctions delete
+```
+
+The bot provides autocomplete suggestions of your active auctions, making it easy to select which one to delete.
+
+<Warning>
+  Deleting an auction is permanent and cannot be undone. Make sure you select the correct auction before confirming.
+</Warning>
+
+### Unlink your account
+
+If you need to disconnect your Discord account:
+
+```bash Discord Command
+/discord unlink
+```
+
+<Warning>
+  Unlinking will disable all personalized features including auction management, notifications, and messaging until you link again.
+</Warning>
 
 ## Next steps
 
-Now that you have your docs running, explore these key features:
-
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Auction Management" icon="gavel" href="/features/auctions">
+    Learn advanced auction features like bumping, negotiation, and batch operations
+  </Card>
+  
+  <Card title="Price Checking" icon="chart-line" href="/features/price-checking">
+    Master the price checking system to make informed trading decisions
+  </Card>
+  
+  <Card title="Notifications" icon="bell" href="/features/notifications">
+    Set up Discord, email, and mobile notifications for auction activity
+  </Card>
+  
+  <Card title="User Settings" icon="user-gear" href="/features/user-settings">
+    Customize your profile and notification preferences
+  </Card>
 </CardGroup>
 
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+## Common questions
+
+<AccordionGroup>
+  <Accordion title="Why aren't slash commands showing up?">
+    If slash commands don't appear when you type `/`, check:
+    1. The bot has "Use Application Commands" permission in the channel
+    2. Your Discord client is up to date
+    3. You've waited a few minutes after adding the bot (commands can take time to register)
+    4. Try typing the full command manually: `/auctions create`
+  </Accordion>
+  
+  <Accordion title="Can I edit an auction after creating it?">
+    Currently, auctions cannot be edited after creation. To change details, you'll need to delete the auction and create a new one with the updated information.
+  </Accordion>
+  
+  <Accordion title="How long do auctions last?">
+    Auction duration depends on your MinionAH account settings. You can configure default durations and auto-renewal options in your web account settings.
+  </Accordion>
+  
+  <Accordion title="Do I need to link my account to use the bot?">
+    Account linking is required for:
+    - Creating auctions
+    - Viewing your auctions
+    - Deleting auctions
+    - Receiving personalized notifications
+    
+    You can use `/prices` and `/auctions search` without linking.
+  </Accordion>
+  
+  <Accordion title="What if I get an error when creating an auction?">
+    Common errors and solutions:
+    - **"Account not linked"**: Run `/discord link` first
+    - **"Invalid minion type"**: Use the autocomplete suggestions
+    - **"Price too low"**: Ensure price is greater than 0
+    - **"Database error"**: The bot may be experiencing issues - try again in a few minutes
+  </Accordion>
+</AccordionGroup>
+
+## Need help?
+
+If you encounter issues or have questions:
+
+1. Check the [Feature Documentation](/features/auctions) for detailed guides
+2. Review the [Command Reference](/commands/auctions) for parameter details
+3. Visit the MinionAH Discord server for community support
+4. Contact support through the MinionAH website
+
+<Tip>
+  Use `/auctions search` without any filters to explore the marketplace and see example listings before creating your first auction.
+</Tip>

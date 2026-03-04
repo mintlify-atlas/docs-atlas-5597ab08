@@ -1,0 +1,213 @@
+---
+title: REST API Overview
+description: Learn how to use the MinionAH Bot REST API for programmatic access to notifications and bot features
+---
+
+## Introduction
+
+The MinionAH Bot provides a REST API that allows external services (like the web application) to interact with the Discord bot programmatically. The API is built with Express.js and uses Zod for request validation.
+
+## Base URL
+
+The API runs on the port specified in your environment configuration:
+
+```
+http://localhost:{WEB_PORT}
+```
+
+The default port is `3000` as defined in `.env.example`.
+
+## Authentication
+
+All API endpoints (except `/health`) require authentication using an API key.
+
+<Note>
+  The API uses a simple authorization header for authentication. Make sure to keep your API key secure.
+</Note>
+
+### API Key Setup
+
+1. Set the `API_KEY` in your `.env` file:
+
+```bash
+API_KEY="your-secure-api-key-here"
+```
+
+2. Include the API key in the `Authorization` header for all requests:
+
+```bash
+Authorization: your-secure-api-key-here
+```
+
+### Authentication Implementation
+
+The authentication middleware (`src/rest/middleware/auth.ts:8`) validates the authorization header against the `API_KEY` environment variable:
+
+```typescript
+if (req.headers.authorization?.trim() == process.env.API_KEY) return next();
+res.status(401).send("Unauthorized request.");
+```
+
+## Request Validation
+
+All POST endpoints use Zod schemas for request validation. Invalid requests return a `400 Bad Request` response.
+
+<Note>
+  Request bodies are validated at the middleware level before reaching the route handlers.
+</Note>
+
+The validation middleware (`src/rest/middleware/zodMW.ts:11`) ensures all incoming data matches the expected schema:
+
+- Validates request body structure
+- Type-checks all fields
+- Returns `400 Bad Request` for invalid data
+- Parses and sanitizes valid data
+
+## Available Endpoints
+
+### Health Check
+
+<Card title="GET /health" icon="heart-pulse">
+  Check if the API server is running. No authentication required.
+</Card>
+
+**Request:**
+
+```bash
+curl http://localhost:3000/health
+```
+
+**Response:**
+
+```json
+{
+  "status": "ok"
+}
+```
+
+### Notifications
+
+The API provides several notification endpoints for sending Discord DMs to users:
+
+<CardGroup cols={2}>
+  <Card title="Send Message" icon="message" href="/api/notifications#send-message-notification">
+    Send a message notification to a user
+  </Card>
+  <Card title="Expiring Auctions" icon="clock" href="/api/notifications#expiring-auctions-notification">
+    Notify users about expiring auctions
+  </Card>
+  <Card title="Test Notification" icon="vial" href="/api/notifications#test-notification">
+    Send a test notification to verify setup
+  </Card>
+</CardGroup>
+
+See the [Notifications API](/api/notifications) page for detailed endpoint documentation.
+
+## Error Handling
+
+The API uses standard HTTP status codes:
+
+| Status Code | Description |
+|-------------|-------------|
+| `200` | Success |
+| `400` | Bad Request - Invalid request body or parameters |
+| `401` | Unauthorized - Missing or invalid API key |
+| `500` | Internal Server Error - Discord API error or server issue |
+
+### Error Response Format
+
+**Authentication Error (401):**
+
+```
+Unauthorized request.
+```
+
+**Validation Error (400):**
+
+```
+Bad Request
+```
+
+**Server Error (500):**
+
+```json
+{
+  "error": "Error description"
+}
+```
+
+## Rate Limiting
+
+<Warning>
+  The API does not currently implement rate limiting. Be mindful of Discord's rate limits when sending notifications.
+</Warning>
+
+Discord has strict rate limits for DM messages. If you're sending many notifications, consider implementing:
+
+- Batching notifications
+- Queueing systems
+- Retry logic with exponential backoff
+
+## Example: Making an Authenticated Request
+
+Here's a complete example of making an authenticated request to the API:
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST http://localhost:3000/notifications/test \
+  -H "Content-Type: application/json" \
+  -H "Authorization: your-api-key-here" \
+  -d '{
+    "receiverDiscordID": "123456789012345678",
+    "senderID": "a1b2c3d4e5f67890a1b2c3d4e5f67890"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('http://localhost:3000/notifications/test', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': process.env.API_KEY
+  },
+  body: JSON.stringify({
+    receiverDiscordID: '123456789012345678',
+    senderID: 'a1b2c3d4e5f67890a1b2c3d4e5f67890'
+  })
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+```python Python
+import requests
+import os
+
+url = 'http://localhost:3000/notifications/test'
+headers = {
+    'Content-Type': 'application/json',
+    'Authorization': os.getenv('API_KEY')
+}
+payload = {
+    'receiverDiscordID': '123456789012345678',
+    'senderID': 'a1b2c3d4e5f67890a1b2c3d4e5f67890'
+}
+
+response = requests.post(url, json=payload, headers=headers)
+print(response.json())
+```
+
+</CodeGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Notifications API" icon="bell" href="/api/notifications">
+    Explore all notification endpoints
+  </Card>
+  <Card title="Discord Integration" icon="discord" href="/architecture/discord-client">
+    Learn about Discord bot integration
+  </Card>
+</CardGroup>

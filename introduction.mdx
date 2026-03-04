@@ -1,0 +1,235 @@
+---
+title: Introduction
+description: Official Discord bot for managing auctions, checking prices, and receiving notifications on MinionAH
+mode: custom
+---
+
+<div className="relative overflow-hidden bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] dark:from-[#7C3AED] dark:to-[#6D28D9] py-20">
+  <div className="max-w-6xl mx-auto px-6 sm:px-8">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+      <div className="lg:col-span-7">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
+          Welcome to MinionAH Bot Documentation
+        </h1>
+        <p className="text-lg sm:text-xl text-white/90 max-w-2xl mb-8">
+          Manage your Hypixel Skyblock minion auctions, check the latest prices, and receive real-time notifications—all from Discord.
+        </p>
+        <div className="flex flex-wrap gap-4">
+          <a 
+            href="/quickstart" 
+            className="inline-flex items-center px-6 py-3 bg-white text-[#8B5CF6] font-semibold rounded-lg hover:bg-gray-100 transition-colors no-underline"
+          >
+            Get Started
+            <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+          <a 
+            href="/commands/auctions" 
+            className="inline-flex items-center px-6 py-3 border-2 border-white/30 bg-white/10 text-white font-semibold rounded-lg hover:bg-white/20 transition-colors no-underline"
+          >
+            Explore Commands
+          </a>
+        </div>
+      </div>
+      <div className="lg:col-span-5 hidden lg:block">
+        <div className="relative">
+          <div className="absolute inset-0 bg-white/10 rounded-2xl blur-xl"></div>
+          <div className="relative bg-white/5 backdrop-blur-sm border border-white/20 rounded-2xl p-6">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-white/60 text-xs">Discord Command</div>
+                  <div className="text-white font-mono text-sm">/auctions search</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-white/60 text-xs">Price Check</div>
+                  <div className="text-white font-mono text-sm">/prices tier:11</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-white/60 text-xs">Notifications</div>
+                  <div className="text-white font-mono text-sm">Real-time alerts</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-white mb-4">
+    Quick start
+  </h2>
+  <p className="text-base text-gray-600 dark:text-gray-400 mb-8">
+    Get up and running with MinionAH Bot in just a few steps
+  </p>
+
+  <Steps>
+    <Step title="Add the bot to your Discord server">
+      Invite MinionAH Bot to your Discord server using the invite link. The bot requires permissions to send messages and use slash commands.
+      
+      <Note>
+        Make sure you have "Manage Server" permissions to add the bot to your Discord server.
+      </Note>
+    </Step>
+    
+    <Step title="Link your MinionAH account">
+      Use the `/discord link` command to connect your Discord account with your MinionAH account. This enables personalized features like viewing your auctions and managing notifications.
+      
+      ```bash Discord Command
+      /discord link
+      ```
+    </Step>
+    
+    <Step title="Create your first auction">
+      Start creating minion auctions directly from Discord using the `/auctions create` command.
+      
+      ```bash Discord Command
+      /auctions create
+      ```
+      
+      <Accordion title="What happens next?">
+        The bot will guide you through an interactive form where you can:
+        - Select the minion type and tier
+        - Set your price
+        - Specify quantity
+        - Add optional features (infusion, free will)
+        - Mark as negotiable
+      </Accordion>
+    </Step>
+    
+    <Step title="Search for auctions">
+      Browse available minion auctions with powerful filtering options.
+      
+      ```bash Discord Command
+      /auctions search
+      ```
+      
+      The search command supports filtering by minion type, tier, price range, and special features.
+    </Step>
+  </Steps>
+</div>
+
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-white mb-4">
+    Explore by topic
+  </h2>
+  <p className="text-base text-gray-600 dark:text-gray-400 mb-8">
+    Dive deeper into MinionAH Bot's features and capabilities
+  </p>
+
+  <CardGroup cols={2}>
+    <Card
+      title="Auction Management"
+      icon="gavel"
+      href="/features/auctions"
+    >
+      Create, search, and manage your minion auctions with comprehensive Discord commands
+    </Card>
+    <Card
+      title="Price Checking"
+      icon="chart-line"
+      href="/features/price-checking"
+    >
+      Check real-time minion prices across all tiers to make informed trading decisions
+    </Card>
+    <Card
+      title="Notifications"
+      icon="bell"
+      href="/features/notifications"
+    >
+      Receive alerts via Discord, email, or mobile when your auctions get activity
+    </Card>
+    <Card
+      title="User Settings"
+      icon="user-gear"
+      href="/features/user-settings"
+    >
+      Customize your profile, notification preferences, and account settings
+    </Card>
+  </CardGroup>
+</div>
+
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-white mb-4">
+    Developer resources
+  </h2>
+  <p className="text-base text-gray-600 dark:text-gray-400 mb-8">
+    Integrate with MinionAH Bot or deploy your own instance
+  </p>
+
+  <CardGroup cols={2}>
+    <Card
+      title="Discord Commands Reference"
+      icon="terminal"
+      href="/commands/auctions"
+    >
+      Complete reference for all Discord slash commands and their parameters
+    </Card>
+    <Card
+      title="REST API"
+      icon="code"
+      href="/api/overview"
+    >
+      REST API endpoints for notifications and auction management
+    </Card>
+    <Card
+      title="Database Schema"
+      icon="database"
+      href="/database/schema"
+    >
+      Understand the data model powering MinionAH Bot
+    </Card>
+    <Card
+      title="Deployment Guide"
+      icon="rocket"
+      href="/configuration/deployment"
+    >
+      Deploy your own instance of MinionAH Bot with Docker
+    </Card>
+  </CardGroup>
+</div>
+
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <div className="bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] dark:from-[#7C3AED] dark:to-[#6D28D9] rounded-2xl p-8 sm:p-12 border border-[#A78BFA]/20">
+    <div className="max-w-3xl">
+      <h2 className="text-2xl sm:text-3xl font-semibold text-white mb-4">
+        Ready to get started?
+      </h2>
+      <p className="text-white/90 text-base sm:text-lg mb-6">
+        Join thousands of Hypixel Skyblock players managing their minion economy through Discord
+      </p>
+      <a 
+        href="/quickstart" 
+        className="inline-flex items-center px-6 py-3 bg-white text-[#8B5CF6] font-semibold rounded-lg hover:bg-gray-100 transition-colors no-underline"
+      >
+        Get Started Now
+        <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        </svg>
+      </a>
+    </div>
+  </div>
+</div>

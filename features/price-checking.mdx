@@ -1,0 +1,268 @@
+---
+title: Price Checking
+description: View craft costs for Hypixel Skyblock minions to make informed buying and selling decisions
+---
+
+The price checking feature helps you understand the craft cost of minions before buying or selling them. This information is crucial for setting competitive auction prices and evaluating deals.
+
+## Overview
+
+The `/prices` command provides instant access to minion craft costs directly in Discord. The data helps you:
+
+- Price your auctions competitively
+- Evaluate if an auction is a good deal
+- Understand the baseline value of minions
+- Make informed purchasing decisions
+
+## Using the Prices Command
+
+### Basic Command
+
+```
+/prices
+```
+
+Without any parameters, this command displays all minion types and tiers with their craft costs in a paginated format.
+
+### Filtered Search
+
+You can filter results by specifying minion type and/or tier:
+
+```
+/prices type: Clay tier: 11
+```
+
+### Parameters
+
+<ParamField path="type" type="string" optional>
+  The type of minion to check the price for (e.g., "Clay", "Snow", "Cobblestone")
+</ParamField>
+
+<ParamField path="tier" type="integer" optional>
+  The tier of the minion (1-12)
+</ParamField>
+
+## Price Display Format
+
+Each minion entry shows:
+
+- **Minion emoji**: Visual identification
+- **Minion name**: Type and tier (e.g., "Clay Minion XI")
+- **Craft cost**: Formatted price (e.g., "`1.5M`", "`250K`")
+
+### Example Display
+
+```
+🧱 Clay Minion I ~ `5K`
+🧱 Clay Minion II ~ `10K`
+🧱 Clay Minion III ~ `25K`
+...
+🧱 Clay Minion XI ~ `1.5M`
+🧱 Clay Minion XII ~ `3M`
+```
+
+<Note>
+Prices are formatted for easy readability using standard abbreviations (K for thousands, M for millions).
+</Note>
+
+## Navigation and Browsing
+
+### Pagination Controls
+
+The price list is paginated to keep Discord messages readable. Each page displays a subset of minions with navigation buttons:
+
+<Steps>
+  <Step title="Page Navigation">
+    Use the First, Previous, Next, and Last buttons to move between pages.
+  </Step>
+  
+  <Step title="Page Jumping">
+    Click the "Page Jump" button to enter a specific page number directly.
+  </Step>
+  
+  <Step title="Page Counter">
+    The bottom of each display shows your current page and total pages (e.g., "Showing page 3 of 15").
+  </Step>
+</Steps>
+
+### User Interface Components
+
+The price check display includes:
+
+1. **Header Section**
+   - Title: "Minion Prices"
+   - Description: Explains the purpose of craft cost data
+
+2. **Content Section**
+   - List of minions with emojis, names, and prices
+   - Multiple entries per page for efficient browsing
+
+3. **Footer Section**
+   - Page indicator
+   - MinionAH.com attribution link
+
+4. **Action Row**
+   - Pagination buttons for navigation
+
+## Understanding Craft Costs
+
+### What is Craft Cost?
+
+Craft cost represents the total resource value needed to craft a minion from scratch, including:
+
+- Base materials for Tier 1
+- Upgrade costs for each tier
+- Resource prices based on current market values
+
+### How to Use Craft Costs
+
+<AccordionGroup>
+  <Accordion title="Pricing Your Auctions">
+    Set your auction price based on craft cost:
+    - **Below craft cost**: Quick sale pricing (good for bulk sales)
+    - **At craft cost**: Fair market value
+    - **Above craft cost**: Premium pricing (for convenience or rare minions)
+  </Accordion>
+  
+  <Accordion title="Evaluating Purchases">
+    When considering an auction:
+    1. Check the minion's craft cost using `/prices`
+    2. Compare the auction price to craft cost
+    3. Factor in special attributes (Mithril Infusion, Free Will)
+    4. Decide if the price represents good value
+  </Accordion>
+  
+  <Accordion title="Market Analysis">
+    Use price data to understand the market:
+    - Browse all minions to see which are most valuable
+    - Compare tiers to understand upgrade costs
+    - Identify profitable minion types for farming or trading
+  </Accordion>
+</AccordionGroup>
+
+## Example Workflows
+
+### Example 1: Pricing a New Auction
+
+<Steps>
+  <Step title="Check Craft Cost">
+    ```
+    /prices type: Snow tier: 11
+    ```
+    Result: Snow Minion XI costs 2M coins to craft
+  </Step>
+  
+  <Step title="Determine Your Price">
+    Based on the 2M craft cost, you decide to price at 1.8M for a quick sale or 2.2M for premium pricing.
+  </Step>
+  
+  <Step title="Create Auction">
+    ```
+    /auctions create minion_type: Snow minion_tier: 11 quantity: 3 price: 2200000
+    ```
+  </Step>
+</Steps>
+
+### Example 2: Evaluating a Deal
+
+<Steps>
+  <Step title="Find Auction">
+    While browsing `/auctions search`, you see a Clay Minion XI listed for 1.2M.
+  </Step>
+  
+  <Step title="Check Price">
+    ```
+    /prices type: Clay tier: 11
+    ```
+    Result: Clay Minion XI craft cost is 1.5M
+  </Step>
+  
+  <Step title="Make Decision">
+    The auction is 300K below craft cost—this is a good deal! Proceed with purchase.
+  </Step>
+</Steps>
+
+### Example 3: Browsing All Prices
+
+<Steps>
+  <Step title="View All Minions">
+    ```
+    /prices
+    ```
+    Browse through all pages to see the full price list.
+  </Step>
+  
+  <Step title="Navigate Pages">
+    Use pagination controls to review different minion types and tiers.
+  </Step>
+  
+  <Step title="Identify Opportunities">
+    Note which minions are most valuable for your farming or trading strategy.
+  </Step>
+</Steps>
+
+## Technical Details
+
+### Data Source
+
+Prices are stored in the Minion model database with the following structure:
+
+```typescript
+model Minion {
+  id             String    @id
+  name           String
+  generator      String
+  generator_tier Int
+  maxTier        Int
+  craftCost      Float     @default(0)
+  sellers        Auction[]
+}
+```
+
+The `craftCost` field is pre-calculated and stored for quick retrieval.
+
+### Price Formatting
+
+Prices are formatted using the `formatMinionPrice` utility function, which:
+
+- Converts large numbers to K (thousands) or M (millions)
+- Rounds to appropriate decimal places
+- Adds formatting for readability
+
+## Tips for Using Price Data
+
+<CardGroup cols={2}>
+  <Card title="Check Before Listing" icon="search-dollar">
+    Always check craft costs before creating an auction to ensure competitive pricing.
+  </Card>
+  
+  <Card title="Compare Tiers" icon="layer-group">
+    View multiple tiers to understand upgrade costs and value progression.
+  </Card>
+  
+  <Card title="Factor in Attributes" icon="star">
+    Remember that Mithril Infusion and Free Will add value beyond base craft cost.
+  </Card>
+  
+  <Card title="Market Fluctuations" icon="chart-line">
+    Craft costs are baseline values; actual market prices may vary based on supply and demand.
+  </Card>
+</CardGroup>
+
+<Warning>
+Craft costs represent material values, not market prices. Actual auction prices may be higher or lower based on current market conditions, demand, and special attributes.
+</Warning>
+
+## Integration with Auctions
+
+The price checking feature works seamlessly with the auction system:
+
+- Use `/prices` to inform your `/auctions create` pricing decisions
+- Reference craft costs when evaluating `/auctions search` results
+- Compare your auction prices against market baseline using this data
+
+## Related Features
+
+- [Auction Management](/features/auctions): Create and manage your minion listings
+- [User Settings](/features/user-settings): Configure your account preferences
+- [Notifications](/features/notifications): Stay updated on auction activity

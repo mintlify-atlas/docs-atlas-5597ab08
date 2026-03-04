@@ -1,0 +1,444 @@
+---
+title: Deployment Guide
+description: Deploy the MinionAH Bot using Docker or directly with Bun runtime
+---
+
+The MinionAH Bot can be deployed using Docker or directly with the Bun runtime. This guide covers both deployment methods and database setup.
+
+## Prerequisites
+
+<Note>
+  Before deploying, ensure you have:
+  - PostgreSQL database (version 12 or higher)
+  - Discord bot token and application configured
+  - All required environment variables ready
+</Note>
+
+## Docker Deployment (Recommended)
+
+The recommended way to deploy MinionAH Bot is using Docker, which ensures a consistent environment across different platforms.
+
+### Building the Docker Image
+
+<Steps>
+  <Step title="Clone the repository">
+    ```bash
+    git clone https://github.com/your-org/minionah-bot.git
+    cd minionah-bot
+    ```
+  </Step>
+  
+  <Step title="Create environment file">
+    ```bash
+    cp .env.example .env
+    # Edit .env with your actual values
+    ```
+  </Step>
+  
+  <Step title="Build the Docker image">
+    ```bash
+    docker build -t minionah-bot .
+    ```
+    
+    The Dockerfile performs the following steps:
+    - Uses `oven/bun` as the base image
+    - Copies application files
+    - Installs dependencies with `bun i`
+    - Generates Prisma client with `bunx prisma generate`
+    - Runs the bot with `bun run prod`
+  </Step>
+  
+  <Step title="Run the container">
+    ```bash
+    docker run -d \
+      --name minionah-bot \
+      --env-file .env \
+      -p 3000:3000 \
+      --restart unless-stopped \
+      minionah-bot
+    ```
+  </Step>
+</Steps>
+
+### Docker Image Details
+
+The Dockerfile uses the official Bun image:
+
+```dockerfile Dockerfile
+from oven/bun
+
+workdir /app
+
+copy . .
+
+run bun i
+
+run bunx prisma generate
+
+cmd ["bun", "run", "prod"]
+```
+
+<Warning>
+  The Prisma client is generated during the build process. If you modify the database schema, you'll need to rebuild the Docker image.
+</Warning>
+
+### Docker with PostgreSQL
+
+For a complete deployment with PostgreSQL, you can create a `docker-compose.yml`:
+
+```yaml docker-compose.yml
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: minionah
+      POSTGRES_USER: minionah
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  bot:
+    build: .
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgresql://minionah:${DB_PASSWORD}@postgres:5432/minionah
+      DIRECT_DATABASE_URL: postgresql://minionah:${DB_PASSWORD}@postgres:5432/minionah
+      DISCORD_TOKEN: ${DISCORD_TOKEN}
+      APP_ID: ${APP_ID}
+      ADMIN_ID: ${ADMIN_ID}
+      API_KEY: ${API_KEY}
+      WEB_PORT: 3000
+      CLOUDINARY_URL: ${CLOUDINARY_URL}
+      HEARTBEAT_URL: ${HEARTBEAT_URL}
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+```
+
+Then deploy with:
+
+```bash
+docker-compose up -d
+```
+
+## Direct Deployment with Bun
+
+You can also deploy directly using the Bun runtime without Docker.
+
+### System Requirements
+
+- **Node.js**: Version 22 or higher (for compatibility)
+- **Bun**: Version 1.0 or higher
+- **PostgreSQL**: Version 12 or higher
+
+<Warning>
+  The project explicitly requires Bun. npm, yarn, pnpm, and deno are not supported.
+</Warning>
+
+### Installation Steps
+
+<Steps>
+  <Step title="Install Bun">
+    ```bash
+    curl -fsSL https://bun.sh/install | bash
+    ```
+  </Step>
+  
+  <Step title="Clone and install">
+    ```bash
+    git clone https://github.com/your-org/minionah-bot.git
+    cd minionah-bot
+    bun install
+    ```
+  </Step>
+  
+  <Step title="Generate Prisma client">
+    ```bash
+    bunx prisma generate
+    ```
+  </Step>
+  
+  <Step title="Set up database">
+    See the [Database Setup](#database-setup) section below.
+  </Step>
+  
+  <Step title="Run the bot">
+    ```bash
+    bun run prod
+    ```
+  </Step>
+</Steps>
+
+## Database Setup
+
+The MinionAH Bot uses PostgreSQL with Prisma ORM for database management.
+
+### Prisma Configuration
+
+The Prisma schema is configured to:
+- Generate the client to `src/generated/prisma`
+- Support native and Linux ARM64 with OpenSSL 3.0.x targets
+- Use PostgreSQL as the database provider
+
+### Running Migrations
+
+<Steps>
+  <Step title="Create migration">
+    If you've made schema changes:
+    ```bash
+    bunx prisma migrate dev --name your_migration_name
+    ```
+  </Step>
+  
+  <Step title="Apply migrations in production">
+    ```bash
+    bunx prisma migrate deploy
+    ```
+  </Step>
+  
+  <Step title="Verify database">
+    ```bash
+    bunx prisma studio
+    ```
+    This opens a browser-based database viewer at `http://localhost:5555`
+  </Step>
+</Steps>
+
+### Database Schema Overview
+
+The bot uses the following main models:
+
+- **User**: Discord users and authentication
+- **Auction**: Minion auction listings
+- **Minion**: Minion types and tiers
+- **Chat**: Direct messaging between users
+- **Message**: Chat messages
+- **Session**: User sessions
+
+<Note>
+  The Prisma client connection is established automatically in `src/central.config.ts` when the bot starts.
+</Note>
+
+### Connection Pooling
+
+For production deployments, consider using a connection pooler like PgBouncer:
+
+```bash
+# With connection pooler
+DATABASE_URL="postgresql://user:pass@pooler:6543/minionah?pgbouncer=true"
+DIRECT_DATABASE_URL="postgresql://user:pass@postgres:5432/minionah"
+```
+
+## Process Management
+
+For production deployments without Docker, use a process manager:
+
+### Using PM2
+
+```bash
+# Install PM2
+npm install -g pm2
+
+# Start the bot
+pm2 start "bun run prod" --name minionah-bot
+
+# Save configuration
+pm2 save
+
+# Setup auto-restart on boot
+pm2 startup
+```
+
+### Using systemd
+
+Create `/etc/systemd/system/minionah-bot.service`:
+
+```ini
+[Unit]
+Description=MinionAH Discord Bot
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=minionah
+WorkingDirectory=/opt/minionah-bot
+EnvironmentFile=/opt/minionah-bot/.env
+ExecStart=/usr/local/bin/bun run prod
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+
+```bash
+sudo systemctl enable minionah-bot
+sudo systemctl start minionah-bot
+sudo systemctl status minionah-bot
+```
+
+## Health Monitoring
+
+The bot runs an Express web server on the configured `WEB_PORT` (default: 3000).
+
+### Health Check Endpoint
+
+Monitor the bot's health by checking if the web server is responding:
+
+```bash
+curl http://localhost:3000
+```
+
+### Heartbeat Monitoring
+
+The bot includes optional heartbeat monitoring. To enable:
+
+1. Set `HEARTBEAT_URL` in your environment variables
+2. Uncomment the cron job in `src/index.ts:29`
+3. The bot will ping the heartbeat URL every 5 minutes
+
+```typescript
+// Enable this line for heartbeat monitoring
+cron.schedule("5 * * * *", async () => await fetch(process.env.HEARTBEAT_URL!));
+```
+
+## Logging and Debugging
+
+### View Logs
+
+**Docker:**
+```bash
+docker logs -f minionah-bot
+```
+
+**PM2:**
+```bash
+pm2 logs minionah-bot
+```
+
+**systemd:**
+```bash
+journalctl -u minionah-bot -f
+```
+
+### Development Mode
+
+For local development with hot reloading:
+
+```bash
+bun run dev
+```
+
+This uses nodemon to watch for file changes and automatically restarts the bot.
+
+## Updating the Bot
+
+<Steps>
+  <Step title="Pull latest changes">
+    ```bash
+    git pull origin main
+    ```
+  </Step>
+  
+  <Step title="Update dependencies">
+    ```bash
+    bun install
+    ```
+  </Step>
+  
+  <Step title="Run migrations">
+    ```bash
+    bunx prisma migrate deploy
+    bunx prisma generate
+    ```
+  </Step>
+  
+  <Step title="Restart the bot">
+    **Docker:**
+    ```bash
+    docker-compose down
+    docker-compose up -d --build
+    ```
+    
+    **PM2:**
+    ```bash
+    pm2 restart minionah-bot
+    ```
+    
+    **systemd:**
+    ```bash
+    sudo systemctl restart minionah-bot
+    ```
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+### Bot Won't Start
+
+<AccordionGroup>
+  <Accordion title="Invalid token error">
+    Verify your `DISCORD_TOKEN` is correct and the bot is enabled in the Discord Developer Portal.
+  </Accordion>
+  
+  <Accordion title="Database connection failed">
+    - Check `DATABASE_URL` is correct
+    - Ensure PostgreSQL is running
+    - Verify network connectivity to database
+    - Check database user permissions
+  </Accordion>
+  
+  <Accordion title="Prisma client not found">
+    Run `bunx prisma generate` to generate the Prisma client.
+  </Accordion>
+  
+  <Accordion title="Port already in use">
+    Change `WEB_PORT` to an available port or stop the service using port 3000.
+  </Accordion>
+</AccordionGroup>
+
+### Slash Commands Not Appearing
+
+Slash commands are registered when the bot starts. If they don't appear:
+
+1. Wait a few minutes for Discord to sync commands
+2. Check the bot has the `applications.commands` scope
+3. Verify the bot is in your server with proper permissions
+4. Check logs for command registration errors
+
+### Database Migration Issues
+
+If migrations fail:
+
+```bash
+# Reset database (WARNING: deletes all data)
+bunx prisma migrate reset
+
+# Or manually apply migrations
+bunx prisma migrate deploy
+```
+
+## Production Checklist
+
+Before deploying to production:
+
+- [ ] All environment variables are set and secure
+- [ ] Database is backed up regularly
+- [ ] SSL/TLS is enabled for database connections
+- [ ] Bot has minimum required Discord permissions
+- [ ] Process manager or Docker is configured for auto-restart
+- [ ] Monitoring and logging are set up
+- [ ] Health check endpoint is accessible
+- [ ] Firewall rules allow necessary traffic
+- [ ] `.env` file is not committed to version control

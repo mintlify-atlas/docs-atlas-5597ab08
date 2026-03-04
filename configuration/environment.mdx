@@ -1,0 +1,178 @@
+---
+title: Environment Variables
+description: Configure your MinionAH Bot with environment variables for Discord, database, and API connections
+---
+
+The MinionAH Bot uses environment variables for configuration. All required variables must be set before starting the bot.
+
+## Setup
+
+<Steps>
+  <Step title="Create environment file">
+    Copy the example environment file to create your own:
+    ```bash
+    cp .env.example .env
+    ```
+  </Step>
+  
+  <Step title="Configure variables">
+    Edit the `.env` file with your actual values. See the reference below for all available options.
+  </Step>
+  
+  <Step title="Verify configuration">
+    Ensure all required variables are set before starting the bot.
+  </Step>
+</Steps>
+
+## Required Variables
+
+### Discord Configuration
+
+<ParamField path="DISCORD_TOKEN" type="string" required>
+  Your Discord bot token from the [Discord Developer Portal](https://discord.com/developers/applications).
+  
+  ```bash
+  DISCORD_TOKEN="your-discord-bot-token-here"
+  ```
+</ParamField>
+
+<ParamField path="APP_ID" type="string" required>
+  The Application ID of your Discord app, found in the Developer Portal.
+  
+  ```bash
+  APP_ID="1234567890"
+  ```
+</ParamField>
+
+<ParamField path="ADMIN_ID" type="string" required>
+  The Discord user ID of the bot administrator. This user will have access to admin commands.
+  
+  ```bash
+  ADMIN_ID="123456789012345678"
+  ```
+  
+  <Note>
+    To get your Discord user ID, enable Developer Mode in Discord settings, then right-click your username and select "Copy ID".
+  </Note>
+</ParamField>
+
+### Database Configuration
+
+<ParamField path="DATABASE_URL" type="string" required>
+  PostgreSQL connection string for the main database.
+  
+  ```bash
+  DATABASE_URL="postgresql://user:password@localhost:5432/minionah"
+  ```
+  
+  <Warning>
+    Keep your database credentials secure and never commit them to version control.
+  </Warning>
+</ParamField>
+
+<ParamField path="DIRECT_DATABASE_URL" type="string">
+  Direct PostgreSQL connection URL, used by Prisma for migrations and other operations that require a direct connection.
+  
+  ```bash
+  DIRECT_DATABASE_URL="postgresql://user:password@localhost:5432/minionah"
+  ```
+  
+  <Note>
+    This is typically the same as `DATABASE_URL` unless you're using a connection pooler like PgBouncer.
+  </Note>
+</ParamField>
+
+### API Configuration
+
+<ParamField path="API_KEY" type="string" required>
+  API key for authenticating requests to the main MinionAH API.
+  
+  ```bash
+  API_KEY="your-api-key-here"
+  ```
+</ParamField>
+
+### Web Server Configuration
+
+<ParamField path="WEB_PORT" type="number" default="3000">
+  Port number for the Express web server that handles HTTP endpoints.
+  
+  ```bash
+  WEB_PORT=3000
+  ```
+</ParamField>
+
+### External Services
+
+<ParamField path="CLOUDINARY_URL" type="string">
+  Base URL for Cloudinary CDN where images are hosted.
+  
+  ```bash
+  CLOUDINARY_URL="https://res.cloudinary.com/minionah/"
+  ```
+</ParamField>
+
+<ParamField path="HEARTBEAT_URL" type="string">
+  URL endpoint for health check/heartbeat monitoring. The bot can periodically ping this URL to confirm it's running.
+  
+  ```bash
+  HEARTBEAT_URL="http://localhost:3000/health"
+  ```
+  
+  <Note>
+    The heartbeat functionality is currently disabled by default in the code. You can enable it by uncommenting the cron job in `src/index.ts`.
+  </Note>
+</ParamField>
+
+## Example Configuration
+
+Here's a complete example `.env` file with all variables:
+
+```bash .env
+# Discord
+DISCORD_TOKEN="MTIzNDU2Nzg5MDEyMzQ1Njc4.GhIjKl.MnOpQrStUvWxYzAbCdEfGhIjKlMnOpQrStUvWx"
+APP_ID="1234567890"
+ADMIN_ID="123456789012345678"
+
+# Database
+DATABASE_URL="postgresql://minionah:secure_password@localhost:5432/minionah_prod"
+DIRECT_DATABASE_URL="postgresql://minionah:secure_password@localhost:5432/minionah_prod"
+
+# API
+API_KEY="your-secure-api-key-here"
+
+# Web Server
+WEB_PORT=3000
+
+# External Services
+CLOUDINARY_URL="https://res.cloudinary.com/minionah/"
+HEARTBEAT_URL="http://localhost:3000/health"
+```
+
+## Security Best Practices
+
+<Warning>
+  Never commit your `.env` file to version control. The `.env.example` file should only contain placeholder values.
+</Warning>
+
+- Store production secrets in a secure secret management system
+- Use different credentials for development and production environments
+- Rotate API keys and tokens regularly
+- Limit database user permissions to only what's necessary
+- Use SSL/TLS for database connections in production
+
+## Environment-Specific Configuration
+
+You can create different environment files for different deployment stages:
+
+```bash
+.env.development    # Local development
+.env.staging        # Staging environment
+.env.production     # Production environment
+```
+
+Load the appropriate file using the `dotenv` package or specify it when running:
+
+```bash
+bun run dev:prod  # Uses .env file
+```

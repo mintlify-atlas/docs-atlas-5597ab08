@@ -1,0 +1,73 @@
+{
+  "projectType": "saas",
+  "projectName": "MinionAH Bot",
+  "projectDescription": "Official Discord bot for managing auctions, checking prices, and receiving notifications on MinionAH",
+  "theme": "palm",
+  "primaryColor": "#8B5CF6",
+  "lightColor": "#A78BFA",
+  "darkColor": "#7C3AED",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": ["introduction", "quickstart"]
+          },
+          {
+            "group": "Features",
+            "pages": [
+              "features/auctions",
+              "features/price-checking",
+              "features/notifications",
+              "features/user-settings"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": ["configuration/environment", "configuration/deployment"]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "REST API",
+            "pages": ["api/overview", "api/notifications"]
+          },
+          {
+            "group": "Discord Commands",
+            "pages": [
+              "commands/auctions",
+              "commands/prices",
+              "commands/discord",
+              "commands/maintenance"
+            ]
+          },
+          {
+            "group": "Database",
+            "pages": ["database/schema", "database/models"]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Create, search, and manage minion auctions through Discord",
+    "Real-time minion price checking with tier support",
+    "Multi-channel notifications (Email, Discord, Device)",
+    "User authentication and profile management",
+    "Direct messaging system between buyers and sellers"
+  ],
+  "publicApiSurface": [
+    "/auctions create - Create a new minion auction",
+    "/auctions search - Search for minion auctions",
+    "/auctions myauctions - View your active auctions",
+    "/auctions delete - Delete an auction",
+    "/prices [type] [tier] - Check minion prices",
+    "POST /notifications/send - Send notification to user",
+    "GET /notifications/expiring_auctions - Get expiring auctions"
+  ]
+}
